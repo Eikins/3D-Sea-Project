@@ -1,5 +1,11 @@
 # 3D Sea Project
 
+## Install
+
+```
+pip install -r requirements.txt
+```
+
 ## References
 *Unity 2020 HDRP Boat Attack Breakdown* [:link:](https://blogs.unity3d.com/2020/02/10/achieve-beautiful-scalable-and-performant-graphics-with-the-universal-render-pipeline/)
 
