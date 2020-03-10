@@ -5,4 +5,4 @@
 
 Generating Complex Procedural Terrains, *GPU Gems 3*, *nVidia* [:link:](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu)
 
-Vegetation Procedural Animation and Shading, *GPU Gems 3*, *nVidia* [:link](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-16-vegetation-procedural-animation-and-shading-crysis)
+Vegetation Procedural Animation and Shading, *GPU Gems 3*, *nVidia* [:link:](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-16-vegetation-procedural-animation-and-shading-crysis)
