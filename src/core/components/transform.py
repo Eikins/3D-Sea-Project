@@ -43,9 +43,16 @@ class Transform:
         self.scale = scale
         self.__changed = True
 
-    def GetModel(self):
+    def GetMatrix4x4(self):
         """ Returns the model matrix for this object """
         if self.__changed:
-            # TODO: Recompute model matrix
+            
+            # self._Model = ...
+
+            # Hierarchical modeling
+            if(not self._parent is None):
+                self._Model = self._parent.GetMatrix4x4() @ self._Model
+                
             self.__changed = False
+
         return self._Model
