@@ -1,3 +1,8 @@
+"""
+Quaternion class
+@author: Eikins
+"""
+
 from numbers import Number
 import math
 
@@ -42,10 +47,10 @@ class Quaternion:
             return Quaternion(other * self.x, other * self.y, other * self.z, other * self.w)
         else:
             return Quaternion(
-                self.x*other.w   +self.w*other.x   -self.z*other.y   +self.y*other.z,
-                self.y*other.w   +self.z*other.x   +self.w*other.y   -self.x*other.z,
-                self.z*other.w   -self.y*other.x   +self.x*other.y   +self.w*other.z,
-                self.w*other.w   -self.x*other.x   -self.y*other.y   -self.z*other.z
+                x = self.x*other.w   +self.w*other.x   -self.z*other.y   +self.y*other.z,
+                y = self.y*other.w   +self.z*other.x   +self.w*other.y   -self.x*other.z,
+                z = self.z*other.w   -self.y*other.x   +self.x*other.y   +self.w*other.z,
+                w = self.w*other.w   -self.x*other.x   -self.y*other.y   -self.z*other.z
             )
 
     def __rmul__(self, other):
@@ -60,15 +65,53 @@ class Quaternion:
     def __rsub__(self, other):
         return (-1 * self) + other
 
+    def __truediv__(self, other):
+        if isinstance(other, Number):
+            return self * (1 / other)
+
+    @staticmethod
+    def Normalize(q):
+        mag = math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
+        return q / mag if mag > 0.0 else q
+
     @staticmethod
     def AxisAngle(axis, angle):
+        """ Return a quaternion representing the roation around axis of angle """
         theta = math.radians(angle)
         sin = math.sin(theta / 2)
         cos = math.cos(theta / 2)
         v = sin * Vector3.Normalize(axis)
         return Quaternion(
-            v.x,
-            v.y,
-            v.z,
-            cos
+            x = v.x,
+            y = v.y,
+            z = v.z,
+            w = cos
         )
+
+    @staticmethod
+    def Euler(roll = 0.0, pitch = 0.0, yaw = 0.0):
+        """ Convert euler angles to quaternion """
+
+        if isinstance(roll, Vector3):
+            pitch = roll.y
+            yaw = roll.z
+            roll = roll.x
+
+        y = math.radians(yaw)
+        p = math.radians(pitch)
+        r = math.radians(roll)
+
+        cy = math.cos(y * 0.5)
+        cp = math.cos(p * 0.5)
+        cr = math.cos(r * 0.5)
+        sy = math.sin(y * 0.5)
+        sp = math.sin(p * 0.5)
+        sr = math.sin(r * 0.5)
+
+        return Quaternion(
+            x = cy * cp * sr - sy * sp * cr,
+            y = sy * cp * sr + cy * sp * cr,
+            z = sy * cp * cr - cy * sp * sr,
+            w = cy * cp * cr + sy * sp * sr
+        )
+

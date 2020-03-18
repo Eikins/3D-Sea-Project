@@ -1,3 +1,8 @@
+"""
+Vector3 class
+@author: Eikins
+"""
+
 from numbers import Number
 import math
 
@@ -50,4 +55,5 @@ class Vector3:
 
     @staticmethod
     def Normalize(vector):
-        return vector / vector.Magnitude()
+        mag = vector.Magnitude()
+        return vector / mag if mag > 0.0 else vector
