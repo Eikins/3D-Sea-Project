@@ -3,6 +3,11 @@ Quaternion class
 @author: Eikins
 """
 
+# Python 3.7+
+# PEP 563: postponed evaluation of annotations
+# Used for typing
+from __future__ import annotations
+
 from numbers import Number
 import math
 
@@ -10,7 +15,7 @@ from src.math.vector3 import Vector3
 
 class Quaternion:
 
-    def __init__(self, x = 0.0, y = 0.0, z = 0.0, w = 1.0):
+    def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0, w: float = 1.0):
         """ w is the real, and x, y, z  are imaginary components """
         self.x = x
         self.y = y
@@ -70,12 +75,12 @@ class Quaternion:
             return self * (1 / other)
 
     @staticmethod
-    def Normalize(q):
+    def Normalize(q: Quaternion) -> Quaternion:
         mag = math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
         return q / mag if mag > 0.0 else q
 
     @staticmethod
-    def AxisAngle(axis, angle):
+    def AxisAngle(axis: Vector3, angle: float) -> Quaternion:
         """ Return a quaternion representing the roation around axis of angle """
         theta = math.radians(angle)
         sin = math.sin(theta / 2)
@@ -89,13 +94,8 @@ class Quaternion:
         )
 
     @staticmethod
-    def Euler(roll = 0.0, pitch = 0.0, yaw = 0.0):
+    def Eulerf(roll: float = 0.0, pitch: float = 0.0, yaw: float = 0.0) -> Quaternion:
         """ Convert euler angles to quaternion """
-
-        if isinstance(roll, Vector3):
-            pitch = roll.y
-            yaw = roll.z
-            roll = roll.x
 
         y = math.radians(yaw)
         p = math.radians(pitch)
@@ -115,3 +115,7 @@ class Quaternion:
             w = cy * cp * cr + sy * sp * sr
         )
 
+    @staticmethod
+    def Euler(angles: Vector3) -> Quaternion:
+        """ Convert euler angles to quaternion """
+        return Quaternion.Eulerf(angles.x, angles.y, angles.z)

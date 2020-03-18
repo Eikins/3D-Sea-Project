@@ -3,6 +3,11 @@ Transform class used for all geometric transforms
 @author: Eikins
 """
 
+# Python 3.7+
+# PEP 563: postponed evaluation of annotations
+# Used for typing
+from __future__ import annotations
+
 from src.math.vector3 import Vector3
 from src.math.quaternion import Quaternion
 from src.math.matrix4 import Matrix4
@@ -23,7 +28,7 @@ class Transform:
         _Model (Matrix4x4)
     """
 
-    def __init__(self, parent = None):
+    def __init__(self, parent: Transform = None):
         self._parent = parent
         self._children = []
         self._position = Vector3()
@@ -35,22 +40,36 @@ class Transform:
         if not parent is None:
             parent._children += [self]
 
-    def SetPosition(self, position):
+    def SetPosition(self, position: Vector3):
         """ Sets the local position """
         self._position = position
         self.__changed = True
 
-    def SetRotation(self, rotation):
+    def SetRotation(self, rotation: Quaternion):
         """ Sets the local rotation """
         self._rotation = rotation
         self.__changed = True
 
-    def SetScale(self, scale):
+    def SetScale(self, scale: Vector3):
         """ Sets the local rotation """
         self._scale = scale
         self.__changed = True
 
-    def _ParentChanged(self):
+    def SetParent(self, parent: Transform):
+        if not self._parent is None:
+            self._parent._children.remove(self)
+        self._parent = parent
+        parent._children += [self]
+        self.__changed = True
+
+    def AddChild(self, child: Transform):
+        if not child._parent is None:
+            child._parent._children.remove(self)
+        child._parent = self
+        self._children += [self]
+        child.__changed = True
+
+    def _ParentChanged(self) -> bool:
         if(self._parent is None):
             return False
         return self._parent._ParentChanged() or self._parent.__changed

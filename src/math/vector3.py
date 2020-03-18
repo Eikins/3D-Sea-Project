@@ -3,12 +3,17 @@ Vector3 class
 @author: Eikins
 """
 
+# Python 3.7+
+# PEP 563: postponed evaluation of annotations
+# Used for typing
+from __future__ import annotations
+
 from numbers import Number
 import math
 
 class Vector3:
 
-    def __init__(self, x = 0.0, y = 0.0, z = 0.0):
+    def __init__(self, x : float = 0.0, y : float = 0.0, z : float = 0.0):
         self.x = x
         self.y = y
         self.z = z
@@ -50,10 +55,10 @@ class Vector3:
         if isinstance(other, Number):
             return self * (1 / other)
 
-    def Magnitude(self):
+    def Magnitude(self) -> float:
         return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
     @staticmethod
-    def Normalize(vector):
+    def Normalize(vector : Vector3) -> Vector3 :
         mag = vector.Magnitude()
         return vector / mag if mag > 0.0 else vector
