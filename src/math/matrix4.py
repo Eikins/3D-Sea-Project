@@ -36,7 +36,6 @@ class Matrix4:
         xx = n.x * n.x
         yy = n.y * n.y
         zz = n.z * n.z
-        ww = n.w * n.w
 
         xy = n.x * n.y
         xz = n.x * n.z

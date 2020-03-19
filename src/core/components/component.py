@@ -1,3 +1,10 @@
+"""
+Component and Behaviour class used for objects logic
+@author: Eikins
+"""
+
+from src.core.scene import SceneObject
+
 class Component:
     """
     Base component class for scene objects
@@ -5,6 +12,10 @@ class Component:
     Attributes:
         _object (SceneObject)
     """
+
+    def __init__(self, sceneObject: SceneObject):
+        self._object = sceneObject
+
 
 class Behaviour(Component):
     """
