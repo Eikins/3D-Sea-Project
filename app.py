@@ -19,12 +19,12 @@ def main():
     scene = Scene("Main Scene")
 
     camera = Camera()
-    cameraObject = SceneObject()
+    cameraObject = SceneObject("Camera 1")
     cameraObject.AddComponent(camera)
     cameraObject.transform.SetPosition(Vector3(0, 0, 0))
 
     scene.AddObject(cameraObject)
-    scene.AddObject(SceneObject())
+    scene.AddObject(SceneObject("Empty"))
 
     window.AttachScene(scene)
     window.SetRenderingCamera(camera)

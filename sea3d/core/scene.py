@@ -13,7 +13,8 @@ from sea3d.core.components.transform import Transform
 
 class SceneObject:
 
-    def __init__(self, parent: Transform = None):
+    def __init__(self, name:str, parent: Transform = None):
+        self.name = name
         self.transform = Transform(parent)
         self.components = []
 

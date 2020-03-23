@@ -53,6 +53,7 @@ class GLWindow:
                 glfw.set_window_should_close(self.window, True)
 
     def AttachScene(self, scene:Scene):
+        glfw.set_window_title(self.window, scene.name)
         self.scene = scene
 
     def SetRenderingCamera(self, camera:Camera):
