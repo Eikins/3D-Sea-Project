@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 
-from src.math.quaternion import Quaternion
-from src.math.vector3 import Vector3
-from src.core.components.transform import Transform
+from sea3d.math.quaternion import Quaternion
+from sea3d.math.vector3 import Vector3
+from sea3d.core.components.transform import Transform
 
 class TestTransform(unittest.TestCase):
 

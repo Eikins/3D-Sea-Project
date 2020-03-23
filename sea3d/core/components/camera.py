@@ -6,16 +6,17 @@ Component and Behaviour class used for objects logic
 from enum import Enum
 import numpy as np
 
-from src.core.components.component import Component
+from sea3d.core.scene import Component
 
 # TODO : Add Orthogonal camera support
 class Camera(Component):
 
     def __init__(self,
-                 fov:60,
-                 aspect:16/9,
+                 fov:float = 60,
+                 aspect:float = 16/9,
                  near:float = 0.3,
                  far:float = 1000):
+        super().__init__()
         self._fov = fov
         self._aspect = aspect
         self._near = near

@@ -11,7 +11,7 @@ from __future__ import annotations
 from numbers import Number
 import math
 
-from src.math.vector3 import Vector3
+from sea3d.math.vector3 import Vector3
 
 class Quaternion:
 

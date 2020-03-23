@@ -1,7 +1,7 @@
 import unittest
 
-from src.math.quaternion import Quaternion
-from src.math.vector3 import Vector3
+from sea3d.math.quaternion import Quaternion
+from sea3d.math.vector3 import Vector3
 
 class TestMath(unittest.TestCase):
 

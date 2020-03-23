@@ -8,9 +8,9 @@ Transform class used for all geometric transforms
 # Used for typing
 from __future__ import annotations
 
-from src.math.vector3 import Vector3
-from src.math.quaternion import Quaternion
-from src.math.matrix4 import Matrix4
+from sea3d.math.vector3 import Vector3
+from sea3d.math.quaternion import Quaternion
+from sea3d.math.matrix4 import Matrix4
 
 class Transform:
     """
@@ -39,6 +39,9 @@ class Transform:
 
         if not parent is None:
             parent._children += [self]
+
+    def MarkForUpdate(self):
+        self.__changed = True
 
     def SetPosition(self, position: Vector3):
         """ Sets the local position """

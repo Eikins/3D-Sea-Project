@@ -3,7 +3,7 @@ Renderer component, used to render 3D Models
 @author: Eikins
 """
 
-from src.core.components.component import Component
+from sea3d.core.scene import Component
 
 
 class Renderer(Component):
