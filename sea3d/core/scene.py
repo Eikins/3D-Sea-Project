@@ -9,7 +9,7 @@ Component and Behaviour class used for objects logic
 # Used for typing
 from __future__ import annotations
 
-from sea3d.core.components.transform import Transform
+from sea3d.core import Transform
 
 class SceneObject:
 

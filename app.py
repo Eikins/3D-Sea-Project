@@ -7,10 +7,11 @@
 import glfw
 import numpy as np
 
-from sea3d.core.scene import Scene, SceneObject
-from sea3d.core.components.camera import *
-from sea3d.math.matrix4 import * 
-from sea3d.opengl.window import GLWindow
+from sea3d.math import Vector3
+from sea3d.core import Scene, SceneObject
+from sea3d.core.components import Camera
+
+from sea3d.opengl import GLWindow
 
 def main():
     window = GLWindow()

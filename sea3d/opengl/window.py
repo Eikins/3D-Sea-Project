@@ -7,20 +7,20 @@ import OpenGL.GL as GL
 import glfw    
 import numpy as np
 
-from sea3d.core.scene import Scene
-from sea3d.core.components.camera import Camera
+from sea3d.core import Scene
+from sea3d.core.components import Camera
+from sea3d.math import Vector3, Quaternion
 
-from sea3d.math.quaternion import Quaternion
-from sea3d.math.vector3 import Vector3
+import sea3d.core.time as Time
 
 class GLWindow:
 
     def __init__(self, width:int = 800, height:int = 600):
-        self.width = width
-        self.height = height
+        self.width:int = width
+        self.height:int = height
         self.window = None
-        self.scene = None
-        self.camera = None
+        self.scene:Scene = None
+        self.camera:Camera = None
 
     def Init(self):
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -62,30 +62,28 @@ class GLWindow:
     def Run(self):
         """ Main render loop for this OpenGL Window """
         self.scene.Start()
-    
+        glfw.set_time(0.0)
+        lastFrameTime = glfw.get_time()
+
         while not glfw.window_should_close(self.window):
 
             GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-            ## TODO : Draw Scene
-
-            t = self.camera.object.transform
-            # t.SetRotation(t._rotation * Quaternion.AxisAngle(Vector3(0, 1, 0), 0.1))
-            t._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 0.025)
-            t.MarkForUpdate()
-
+            self.scene.Update()         
 
             _Projection = self.camera.GetProjectionMatrix()
             _View = self.camera.object.transform.GetTRSMatrix()
             _ProjectionView = _Projection @ _View
 
-            # Debug
-            position = _View @ np.array([0, 0, 1, 1])
-
-            GL.glClearColor(position[0], position[1], position[2], 1.0)
+            # Draw Scene
 
             # Flush render commands, and swap buffers
             glfw.swap_buffers(self.window)
 
             # Poll for and process events
             glfw.poll_events()
+
+            # Update Delta Time
+            Time.time = glfw.get_time()
+            Time.deltaTime = Time.time - lastFrameTime
+            lastFrameTime = Time.time

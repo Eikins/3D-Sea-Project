@@ -8,9 +8,7 @@ Transform class used for all geometric transforms
 # Used for typing
 from __future__ import annotations
 
-from sea3d.math.vector3 import Vector3
-from sea3d.math.quaternion import Quaternion
-from sea3d.math.matrix4 import Matrix4
+from sea3d.math import *
 
 class Transform:
     """

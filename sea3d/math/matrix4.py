@@ -5,8 +5,7 @@ Matrix class
 
 import numpy as np
 
-from sea3d.math.vector3 import Vector3
-from sea3d.math.quaternion import Quaternion
+from sea3d.math import Vector3, Quaternion
 
 class Matrix4:
 
