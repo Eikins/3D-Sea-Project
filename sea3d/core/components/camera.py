@@ -6,7 +6,7 @@ Component and Behaviour class used for objects logic
 from enum import Enum
 import numpy as np
 
-from sea3d.core.scene import Component
+from sea3d.core import Component
 
 # TODO : Add Orthogonal camera support
 class Camera(Component):
