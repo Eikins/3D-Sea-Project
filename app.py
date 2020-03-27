@@ -14,15 +14,15 @@ from sea3d.core.components import Camera
 from sea3d.opengl import GLWindow
 
 def main():
-    window = GLWindow()
+    window = GLWindow(width=800, height=600)
     window.Init()
 
     scene = Scene("Main Scene")
 
-    camera = Camera()
+    camera = Camera(aspect=800/600)
     cameraObject = SceneObject("Camera 1")
     cameraObject.AddComponent(camera)
-    cameraObject.transform.SetPosition(Vector3(0, 0, 0))
+    cameraObject.transform.SetPosition(Vector3(0, 0, 1))
 
     empty1 = SceneObject("Empty")
 
