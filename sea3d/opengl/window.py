@@ -7,12 +7,12 @@ import OpenGL.GL as GL
 import glfw    
 import numpy as np
 
-from sea3d.core import Scene, Time
-from sea3d.core.components import Camera
+from sea3d.core import Scene, Time, Material
+from sea3d.core.components import Camera, Renderer
 from sea3d.math import Vector3, Quaternion, Matrix4
 
 
-from sea3d.opengl import GLVertexArray, GLMaterial
+from sea3d.opengl import GLVertexArray, GLMaterialBatch
 
 from sea3d.core import Mesh
 
@@ -24,6 +24,8 @@ class GLWindow:
         self.window = None
         self.scene:Scene = None
         self.camera:Camera = None
+        self.materialBatch = GLMaterialBatch()
+        self.renderers = []
 
     def Init(self):
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -47,16 +49,6 @@ class GLWindow:
         # initialize GL by setting viewport and default render characteristics
         GL.glClearColor(0.1, 0.1, 0.1, 0.1)
 
-        # ======================================= DEBUG =====================================================
-        position = np.array(((0, .5, 0), (.5, -.5, 0), (-.5, -.5, 0)), 'f')
-        normals = np.array(((0, 0, -1), (0.70710678118, 0, -0.70710678118), (-0.70710678118, 0, -0.70710678118)), 'f')
-        indexes = np.array((0, 1, 2), 'u4')
-
-        triangle = GLVertexArray(Mesh(position, normals, indexes))
-        triangle.Init()
-        self.vertexArrays = [triangle]
-        self.material:GLMaterial = GLMaterial("BaseMaterial", "assets/shaders/base.vert", "assets/shaders/base.frag")
-        self.material.Init()
 
     def OnKey(self, _win, key, _scancode, action, _mods):
         if action == glfw.PRESS or action == glfw.REPEAT:
@@ -76,6 +68,16 @@ class GLWindow:
         lastFrameTime = glfw.get_time()
         self.scene.Start()
 
+        # Initialize Material Batch
+        for renderer in self.scene.GetAllComponents():
+            if isinstance(renderer, Renderer):
+                self.materialBatch.AddMaterial(renderer.material)
+                vertexArray = GLVertexArray(renderer.mesh)
+                vertexArray.Init()
+                self.renderers += [(vertexArray, renderer)]
+
+        self.materialBatch.BakeMaterials()
+
         while not glfw.window_should_close(self.window):
 
             GL.glClear(GL.GL_COLOR_BUFFER_BIT)
@@ -85,9 +87,9 @@ class GLWindow:
 
             ##### Example of Update Usage
             ## Rotate around Y at 60° / second
-            self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 2 * 51.4285714286 * Time.deltaTime)
+            # self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 2 * 51.4285714286 * Time.deltaTime)
             ## Mark transform for update, this mean recomputation of the model matrix for the next frame
-            self.camera.object.transform.MarkForUpdate() 
+            # self.camera.object.transform.MarkForUpdate() 
             ## Ping-pong translation along X
             # self.camera.object.transform.SetPosition(Vector3(0, 0, 1) + Vector3(1, 0, 0) * np.sin(Time.time * 2))
 
@@ -109,19 +111,20 @@ class GLWindow:
         _Projection = self.camera.GetProjectionMatrix()
         _View = np.linalg.inv(self.camera.object.transform.GetTRSMatrix())
         _ProjectionView = _Projection @ _View
-        _Model = Matrix4.Identity()
 
         # Draw Scene
-        GL.glUseProgram(self.material.glid)
-        for vertexArray in self.vertexArrays:
+        for renderer in self.renderers:
+            
+            glid = self.materialBatch.GetProgramID(renderer[1].material)
 
-            _ProjViewPTR = GL.glGetUniformLocation(self.material.glid, "_ProjectionViewMatrix")
-            _ModelPTR = GL.glGetUniformLocation(self.material.glid, "_ModelMatrix")
+            GL.glUseProgram(glid)
+            _ProjViewPTR = GL.glGetUniformLocation(glid, "_ProjectionViewMatrix")
+            _ModelPTR = GL.glGetUniformLocation(glid, "_ModelMatrix")
 
             GL.glUniformMatrix4fv(_ProjViewPTR, 1, True, _ProjectionView)
-            GL.glUniformMatrix4fv(_ModelPTR, 1, True, _Model)
+            GL.glUniformMatrix4fv(_ModelPTR, 1, True, renderer[1].object.transform.GetTRSMatrix())
 
-            vertexArray.Draw()
+            renderer[0].Draw()
         
         GL.glBindVertexArray(0)
 

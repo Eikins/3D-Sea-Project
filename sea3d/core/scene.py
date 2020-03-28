@@ -62,6 +62,14 @@ class Scene:
         for obj in self.objects:
             obj.Update()
 
+    def GetAllComponents(self):
+        # TODO : Change this terrible search
+        comps = []
+        for obj in self.objects:
+            for comp in obj.components:
+                comps += [comp]
+        return comps
+
 class Component:
     """
     Base component class for scene objects
@@ -81,6 +89,9 @@ class Behaviour(Component):
     - Start
     - Update
     """
+
+    def __init__(self):
+        super().__init__()
 
     def Start(self):
         pass
