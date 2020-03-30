@@ -1,7 +1,6 @@
 
 """
-Scene management
-Component and Behaviour class used for objects logic
+Time variables
 @author: Eikins
 """
 

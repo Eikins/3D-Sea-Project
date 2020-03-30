@@ -7,12 +7,11 @@ import OpenGL.GL as GL
 import glfw    
 import numpy as np
 
-from sea3d.core import Scene, Time, Material
+from sea3d.core import Scene, Time, Material, PropertyBlock
 from sea3d.core.components import Camera, Renderer
 from sea3d.math import Vector3, Quaternion, Matrix4
 
-
-from sea3d.opengl import GLVertexArray, GLMaterialBatch
+from sea3d.opengl import GLStdVBO, GLMaterialBatch, GLTextureAtlas
 
 from sea3d.core import Mesh
 
@@ -25,6 +24,7 @@ class GLWindow:
         self.scene:Scene = None
         self.camera:Camera = None
         self.materialBatch = GLMaterialBatch()
+        self.textureAtlas = GLTextureAtlas()
         self.renderers = []
 
     def Init(self):
@@ -72,29 +72,21 @@ class GLWindow:
         for renderer in self.scene.GetAllComponents():
             if isinstance(renderer, Renderer):
                 self.materialBatch.AddMaterial(renderer.material)
-                vertexArray = GLVertexArray(renderer.mesh)
+                vertexArray = GLStdVBO(renderer.mesh)
                 vertexArray.Init()
                 self.renderers += [(vertexArray, renderer)]
-
-        self.materialBatch.BakeMaterials()
 
         while not glfw.window_should_close(self.window):
 
             GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
+            self.materialBatch.BakeMaterials()
+            self.textureAtlas.BakeTextures()
+
             self.scene.Update()
 
-
-            ##### Example of Update Usage
-            ## Rotate around Y at 60° / second
-            # self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 2 * 51.4285714286 * Time.deltaTime)
-            ## Mark transform for update, this mean recomputation of the model matrix for the next frame
-            # self.camera.object.transform.MarkForUpdate() 
-            ## Ping-pong translation along X
-            # self.camera.object.transform.SetPosition(Vector3(0, 0, 1) + Vector3(1, 0, 0) * np.sin(Time.time * 2))
-
-
             self._Draw_()
+
             # Flush render commands, and swap buffers
             glfw.swap_buffers(self.window)
 
@@ -113,18 +105,41 @@ class GLWindow:
         _ProjectionView = _Projection @ _View
 
         # Draw Scene
-        for renderer in self.renderers:
+        for vbo, renderer in self.renderers:
             
-            glid = self.materialBatch.GetProgramID(renderer[1].material)
+            glid = self.materialBatch.GetProgramID(renderer.material)
 
             GL.glUseProgram(glid)
             _ProjViewPTR = GL.glGetUniformLocation(glid, "_ProjectionViewMatrix")
             _ModelPTR = GL.glGetUniformLocation(glid, "_ModelMatrix")
 
-            GL.glUniformMatrix4fv(_ProjViewPTR, 1, True, _ProjectionView)
-            GL.glUniformMatrix4fv(_ModelPTR, 1, True, renderer[1].object.transform.GetTRSMatrix())
+            # Bind Properties
+            props:PropertyBlock = renderer.properties
+            for name, value in props.floatProperties.items():
+                loc = GL.glGetUniformLocation(glid, name)
+                GL.glUniform1f(loc, value)
 
-            renderer[0].Draw()
+            for name, value in props.intProperties.items():
+                loc = GL.glGetUniformLocation(glid, name)
+                GL.glUniform1i(loc, value)
+        
+            for name, value in props.vec3Properties.items():
+                loc = GL.glGetUniformLocation(glid, name)
+                GL.glUniform3f(loc, value.x, value.y, value.z)
+
+            for index, (name, tex) in enumerate(props.textures.items()):
+                if tex not in self.textureAtlas.textures:
+                    self.textureAtlas.AddTexture(tex)
+                    self.textureAtlas.BakeTextures()
+                GL.glActiveTexture(GL.GL_TEXTURE0 + index)
+                GL.glBindTexture(GL.GL_TEXTURE_2D, self.textureAtlas.textures[tex])
+                loc = GL.glGetUniformLocation(glid, name)
+                GL.glUniform1i(loc, index)
+
+            GL.glUniformMatrix4fv(_ProjViewPTR, 1, True, _ProjectionView)
+            GL.glUniformMatrix4fv(_ModelPTR, 1, True, renderer.object.transform.GetTRSMatrix())
+
+            vbo.Draw()
         
         GL.glBindVertexArray(0)
 

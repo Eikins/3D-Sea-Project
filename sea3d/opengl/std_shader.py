@@ -6,11 +6,11 @@ import os
 import OpenGL.GL as GL
 
 from sea3d.core import Material
+from sea3d.opengl import GLStdVBO
 
 class GLMaterialBatch:
 
     def __init__(self):
-        self.glid = None
         self.materialsToBake = []
         self.vertexShaders = dict()
         self.fragmentShaders = dict()
@@ -23,23 +23,28 @@ class GLMaterialBatch:
     def BakeMaterials(self):
         for material in self.materialsToBake:
 
-            if material.vertex not in self.vertexShaders.keys():
+            if material.vertex not in self.vertexShaders:
                 vertex = self.vertexShaders[material.vertex] = GLMaterialBatch.Compile("assets/shaders/" + material.vertex + ".vert", GL.GL_VERTEX_SHADER)
             else:
                 vertex = self.vertexShaders[material.vertex]
 
-            if material.fragment not in self.fragmentShaders.keys():
+            if material.fragment not in self.fragmentShaders:
                 frag = self.fragmentShaders[material.fragment] = GLMaterialBatch.Compile("assets/shaders/" + material.fragment + ".frag", GL.GL_FRAGMENT_SHADER)
             else:
                 frag = self.fragmentShaders[material.fragment]
 
 
-            if (vertex, frag) in self.programs.keys():
+            if (vertex, frag) in self.programs:
                 self.materialPrograms[material] = self.programs[(vertex, frag)]
             else:
                 glid = GL.glCreateProgram()
                 GL.glAttachShader(glid, vertex)
                 GL.glAttachShader(glid, frag)
+
+                # Bind Std attributes
+                for attrib, loc in GLStdVBO.AttributeLocations.items():
+                    GL.glBindAttribLocation(glid, loc, attrib) 
+
                 GL.glLinkProgram(glid)
 
                 status = GL.glGetProgramiv(glid, GL.GL_LINK_STATUS)

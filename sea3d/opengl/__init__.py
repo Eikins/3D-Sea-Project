@@ -1,3 +1,4 @@
-from sea3d.opengl.vertex_array import *
-from sea3d.opengl.shader import *
+from sea3d.opengl.std_vbo import *
+from sea3d.opengl.textures import *
+from sea3d.opengl.std_shader import *
 from sea3d.opengl.window import *
