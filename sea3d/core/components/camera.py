@@ -48,17 +48,20 @@ class Camera(Component):
         if self.__changed:
             # Recompute matrix
             scale = 1.0 / np.tan(np.radians(self._fov) / 2)
-            depth = self._far - self._near
+            # Project along positive values
+            near = -self._near
+            far = -self._far
+            depth = far - near
 
             m00 = scale / self._aspect
             m11 = scale
-            m22 = -(self._far + self._near) / depth
-            m23 = -2 * self._far * self._near / depth
+            m22 = -(far + near) / depth
+            m23 = -2 * far * near / depth
 
             self._Projection = np.array([[m00,   0,   0,   0],
                                          [  0, m11,   0,   0],
                                          [  0,   0, m22, m23],
-                                         [  0,   0,  -1,   0]], 'f')
+                                         [  0,   0,  1,   0]], 'f')
 
         return self._Projection
     

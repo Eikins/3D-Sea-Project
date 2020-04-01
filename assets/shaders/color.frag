@@ -6,5 +6,6 @@ uniform float _Atten = 1.0;
 out vec4 outColor;
 
 void main() {
-    outColor = vec4(_Color * _Atten, 1.0);
+    
+    outColor = vec4(_Color * _Atten, 0.2);
 }

@@ -8,7 +8,7 @@ Transform class used for all geometric transforms
 # Used for typing
 from __future__ import annotations
 
-from sea3d.math import *
+from sea3d.math import Matrix4, Quaternion, Vector3
 
 class Transform:
     """
@@ -33,6 +33,7 @@ class Transform:
         self._rotation = Quaternion()
         self._scale = Vector3(1, 1, 1)
         self.__changed = True
+        self.__LocalTRS = None
         self._Model = self.GetTRSMatrix()
 
         if not parent is None:
@@ -80,15 +81,17 @@ class Transform:
         if self.__changed:
             
             # self._Model = ...
-            self._Model = Matrix4.Translate(self._position) @ Matrix4.Quaternion(self._rotation) @ Matrix4.Scale(self._scale)
+            self.__LocalTRS = Matrix4.Translate(self._position) @ Matrix4.Quaternion(self._rotation) @ Matrix4.Scale(self._scale)
 
             # Hierarchical modeling
-            if(not self._parent is None):
-                self._Model = self._parent.GetTRSMatrix() @ self._Model
+            if self._parent is not None:
+                self._Model = self._parent.GetTRSMatrix() @ self.__LocalTRS
+            else:
+                self._Model = self.__LocalTRS
                 
             self.__changed = False
         
         elif self._ParentChanged():
-            self._Model = self._parent.GetTRSMatrix() @ self._Model
+            self._Model = self._parent.GetTRSMatrix() @ self.__LocalTRS
 
         return self._Model

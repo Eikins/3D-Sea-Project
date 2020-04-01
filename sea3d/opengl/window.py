@@ -48,12 +48,49 @@ class GLWindow:
 
         # initialize GL by setting viewport and default render characteristics
         GL.glClearColor(0.1, 0.1, 0.1, 0.1)
+        # Left handed coordinate system, invert Depth Range
+        GL.glDepthRange(1.0, 0.0)
+        GL.glEnable(GL.GL_DEPTH_TEST) 
+        GL.glDepthFunc(GL.GL_LESS)
 
 
     def OnKey(self, _win, key, _scancode, action, _mods):
         if action == glfw.PRESS or action == glfw.REPEAT:
             if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
                 glfw.set_window_should_close(self.window, True)
+
+            if key == glfw.KEY_LEFT:
+                self.camera.object.transform._position += -1 * Vector3(1, 0, 0) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_RIGHT:
+                self.camera.object.transform._position += Vector3(1, 0, 0) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_UP:
+                self.camera.object.transform._position += Vector3(0, 0, 1) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_DOWN:
+                self.camera.object.transform._position += -1 * Vector3(0, 0, 1) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_SPACE:
+                self.camera.object.transform._position += Vector3(0, 1, 0) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_LEFT_SHIFT:
+                self.camera.object.transform._position += -1 * Vector3(0, 1, 0) * 40 * Time.deltaTime
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_R:
+                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 720 * Time.deltaTime)
+                self.camera.object.transform.MarkForUpdate()
+
+            if key == glfw.KEY_T:
+                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), -720 * Time.deltaTime)
+                self.camera.object.transform.MarkForUpdate()
+
 
     def AttachScene(self, scene:Scene):
         glfw.set_window_title(self.window, scene.name)
@@ -78,7 +115,7 @@ class GLWindow:
 
         while not glfw.window_should_close(self.window):
 
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
             self.materialBatch.BakeMaterials()
             self.textureAtlas.BakeTextures()
@@ -103,6 +140,7 @@ class GLWindow:
         _Projection = self.camera.GetProjectionMatrix()
         _View = np.linalg.inv(self.camera.object.transform.GetTRSMatrix())
         _ProjectionView = _Projection @ _View
+        _ViewPos = self.camera.object.transform._position
 
         # Draw Scene
         for vbo, renderer in self.renderers:
@@ -112,7 +150,13 @@ class GLWindow:
             GL.glUseProgram(glid)
             _ProjViewPTR = GL.glGetUniformLocation(glid, "_ProjectionViewMatrix")
             _ModelPTR = GL.glGetUniformLocation(glid, "_ModelMatrix")
+            _ViewPosPTR = GL.glGetUniformLocation(glid, "_ViewPos")
+            _LightPosPTR = GL.glGetUniformLocation(glid, "_LightPos")
 
+            GL.glUniformMatrix4fv(_ProjViewPTR, 1, True, _ProjectionView)
+            GL.glUniformMatrix4fv(_ModelPTR, 1, True, renderer.object.transform.GetTRSMatrix())
+            GL.glUniform3f(_ViewPosPTR, _ViewPos.x, _ViewPos.y, _ViewPos.z)
+ 
             # Bind Properties
             props:PropertyBlock = renderer.properties
             for name, value in props.floatProperties.items():
@@ -136,8 +180,10 @@ class GLWindow:
                 loc = GL.glGetUniformLocation(glid, name)
                 GL.glUniform1i(loc, index)
 
-            GL.glUniformMatrix4fv(_ProjViewPTR, 1, True, _ProjectionView)
-            GL.glUniformMatrix4fv(_ModelPTR, 1, True, renderer.object.transform.GetTRSMatrix())
+            # TODO : Render Queue
+            # Get rid of this.... well...
+            GL.glEnable(GL.GL_BLEND)
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
             vbo.Draw()
         
