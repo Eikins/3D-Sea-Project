@@ -59,7 +59,7 @@ class Mesh:
         """ Load resources from file using assimp, return list of Mesh """
         try:
             pp = assimpcy.aiPostProcessSteps
-            flags = pp.aiProcess_Triangulate | pp.aiProcess_CalcTangentSpace   
+            flags = pp.aiProcess_Triangulate | pp.aiProcess_CalcTangentSpace | pp.aiProcess_MakeLeftHanded   
             if gen_normals:
                 flags |= pp.aiProcess_GenSmoothNormals
             if flip_uvs:
@@ -67,7 +67,7 @@ class Mesh:
 
             if fix_normals:
                 flags |= pp.aiProcess_FixInfacingNormals 
-            scene = assimpcy.aiImportFile(file, flags)
+            scene = assimpcy.aiImportFile("assets/models/" + file, flags)
         except assimpcy.AssimpError as exception:
             print('ERROR loading', file + ': ', exception.args[0].decode())
             return []

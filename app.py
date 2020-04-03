@@ -82,9 +82,9 @@ def main():
     plane = GeneratePlane((5, 5), (10, 10), repeat_uv=True)
     plane.vertices[:, 1] += np.random.normal(size=(len(plane.vertices))) / 40
     
-    bunnyModel = Mesh.LoadFromFile("assets/models/bunny.obj")[0]
-    boxModel = Mesh.LoadFromFile("assets/models/cube.obj")[0]
-    fishModel = Mesh.LoadFromFile("assets/models/TropicalFish01.obj")[0]
+    bunnyModel = Mesh.LoadFromFile("bunny.obj")[0]
+    boxModel = Mesh.LoadFromFile("cube.obj")[0]
+    fishModel = Mesh.LoadFromFile("TropicalFish01.obj")[0]
 
     bunnyTex = Texture.LoadFromFile("bunny.png")
     bunnyTexNormal = Texture.LoadFromFile("bunny_normal.png")

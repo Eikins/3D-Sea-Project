@@ -52,7 +52,7 @@ class GLWindow:
         GL.glDepthRange(1.0, 0.0)
         GL.glEnable(GL.GL_DEPTH_TEST) 
         GL.glDepthFunc(GL.GL_LESS)
-
+        GL.glEnable(GL.GL_CULL_FACE)
 
     def OnKey(self, _win, key, _scancode, action, _mods):
         if action == glfw.PRESS or action == glfw.REPEAT:
