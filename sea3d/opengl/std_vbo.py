@@ -25,9 +25,10 @@ class GLStdVBO:
         "InTexCoord7":10
     }
 
-    def __init__(self, mesh:Mesh):
+    def __init__(self, mesh:Mesh, primitive = GL.GL_TRIANGLES):
         self.mesh = mesh
         self.glid = None
+        self.primitive = primitive
         self.buffers = []
 
     def Init(self):
@@ -88,7 +89,7 @@ class GLStdVBO:
 
     def Draw(self):
         GL.glBindVertexArray(self.glid)
-        GL.glDrawElements(GL.GL_TRIANGLES, self.mesh.indexes.size, GL.GL_UNSIGNED_INT, None)
+        GL.glDrawElements(self.primitive, self.mesh.indexes.size, GL.GL_UNSIGNED_INT, None)
 
     def __del__(self):
         GL.glDeleteVertexArrays(1, [self.glid])

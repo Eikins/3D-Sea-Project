@@ -15,7 +15,21 @@ class Material:
         self.name = name
         self.vertex = vertex
         self.fragment = frag
-    
+        self.useTessellation = False
+        self.tessellationControl = ""
+        self.tessellationEvaluation = ""
+
+    def AddTessellation(self, control:str, evaluation:str):
+        """
+        Add Tessellation stage 
+        
+        A Tessellation Control Shader (TCS) & Evaluation Shader (TES) are required.
+        For more information, visit https://web.engr.oregonstate.edu/~mjb/cs519/Handouts/tessellation.1pp.pdf
+        """
+        self.useTessellation = True
+        self.tessellationControl = control
+        self.tessellationEvaluation = evaluation
+
     def __hash__(self):
         return hash(self.name)
 

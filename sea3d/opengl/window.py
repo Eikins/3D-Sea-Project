@@ -3,6 +3,8 @@ OpenGL Window stuff
 @author: Eikins
 """
 
+import time as pythonTime
+
 import OpenGL.GL as GL
 import glfw    
 import numpy as np
@@ -53,6 +55,8 @@ class GLWindow:
         GL.glEnable(GL.GL_DEPTH_TEST) 
         GL.glDepthFunc(GL.GL_LESS)
         GL.glEnable(GL.GL_CULL_FACE)
+
+        # GL.glPatchParameteri(GL.GL_PATCH_VERTICES, 3)
 
     def OnKey(self, _win, key, _scancode, action, _mods):
         if action == glfw.PRESS or action == glfw.REPEAT:
@@ -110,6 +114,8 @@ class GLWindow:
             if isinstance(renderer, Renderer):
                 self.materialBatch.AddMaterial(renderer.material)
                 vertexArray = GLStdVBO(renderer.mesh)
+                if (renderer.material.useTessellation):
+                    vertexArray.primitive = GL.GL_PATCHES
                 vertexArray.Init()
                 self.renderers += [(vertexArray, renderer)]
 
@@ -134,6 +140,11 @@ class GLWindow:
             Time.time = glfw.get_time()
             Time.deltaTime = Time.time - lastFrameTime
             lastFrameTime = Time.time
+
+            if (Time.deltaTime < 1.0 / 60.0):
+                pythonTime.sleep (1.0 / 60.0 - Time.deltaTime)
+                Time.deltaTime = 1.0 / 60.0
+                Time.time = glfw.get_time()
 
     def _Draw_(self):
 
@@ -182,8 +193,13 @@ class GLWindow:
 
             # TODO : Render Queue
             # Get rid of this.... well...
-            GL.glEnable(GL.GL_BLEND)
-            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+            # GL.glEnable(GL.GL_BLEND)
+            # GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+            if (renderer.material.name == "WaterMaterial") :
+                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+            else :
+                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
 
             vbo.Draw()
         

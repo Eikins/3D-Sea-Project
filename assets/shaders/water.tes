@@ -1,0 +1,44 @@
+#version 410 core
+
+layout (triangles, equal_spacing, ccw) in;
+
+uniform mat4 _ProjectionViewMatrix;
+
+uniform sampler2D _HeightMap;
+
+in VertexData {
+    vec3 VertexPosition;
+    vec3 VertexNormal;
+    vec3 VertexTangeant;
+    vec3 VertexBitangeant;
+    vec2 TexCoord0;
+} tcs_out[];
+
+out VertexData {
+    vec3 VertexPosition;
+    vec3 VertexNormal;
+    vec3 VertexTangeant;
+    vec3 VertexBitangeant;
+    vec2 TexCoord0;
+} tes_out;
+
+vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2) {
+    return vec2(gl_TessCoord.x) * v0 + vec2(gl_TessCoord.y) * v1 + vec2(gl_TessCoord.z) * v2;
+}
+
+vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2) {
+    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+} 
+
+void main() {
+    tes_out.VertexPosition = interpolate3D(tcs_out[0].VertexPosition, tcs_out[1].VertexPosition, tcs_out[2].VertexPosition);
+    tes_out.VertexNormal = interpolate3D(tcs_out[0].VertexNormal, tcs_out[1].VertexNormal, tcs_out[2].VertexNormal);
+    tes_out.VertexTangeant = interpolate3D(tcs_out[0].VertexTangeant, tcs_out[1].VertexTangeant, tcs_out[2].VertexTangeant);
+    tes_out.VertexBitangeant = interpolate3D(tcs_out[0].VertexBitangeant, tcs_out[1].VertexBitangeant, tcs_out[2].VertexBitangeant);
+    tes_out.TexCoord0 = interpolate2D(tcs_out[0].TexCoord0, tcs_out[1].TexCoord0, tcs_out[2].TexCoord0);
+
+    tes_out.VertexPosition.y += texture(_HeightMap, tes_out.TexCoord0).r;
+
+    gl_Position = _ProjectionViewMatrix * vec4(tes_out.VertexPosition, 1.0);
+}
+

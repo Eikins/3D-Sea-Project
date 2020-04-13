@@ -26,6 +26,8 @@ class Rotator(Behaviour):
     def Update(self):
         self.object.transform._rotation *= Quaternion.AxisAngle(self.axis, self.speed * Time.deltaTime)
         self.object.transform.MarkForUpdate()
+
+
         self.renderer.properties.SetVector3("_Color", Vector3(1.0, 0.2, 0.2) * (np.sin(Time.time) * 0.5 + 0.5))
 
 
@@ -79,7 +81,7 @@ def main():
     cameraObject.AddComponent(camera)
     cameraObject.transform.SetPosition(Vector3(0, 0, 0))
 
-    plane = GeneratePlane((5, 5), (10, 10), repeat_uv=True)
+    plane = GeneratePlane((20, 20), (20, 20))
     plane.vertices[:, 1] += np.random.normal(size=(len(plane.vertices))) / 40
     
     bunnyModel = Mesh.LoadFromFile("bunny.obj")[0]
@@ -93,6 +95,8 @@ def main():
     fishTex = Texture.LoadFromFile("TropicalFish01.jpg")
     fishTexNormal = Texture.LoadFromFile("TropicalFish01_NormalMap.jpg")
 
+    heightMap = Texture.LoadFromFile("heightmap.png")
+
     # Define the Quad Mesh
     quad = Mesh(vertices = np.array(((-.5, -.5, 0), (.5, -.5, 0), (.5, .5, 0), (-.5, .5, 0)), 'f'),
                 normals  = np.array(((0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)), 'f'),
@@ -102,19 +106,23 @@ def main():
     quad.ComputeTangents()
 
 
+    waterMaterial = Material("WaterMaterial", "water", "water")
+    waterMaterial.AddTessellation("water", "water")
     waterPlane = SceneObject("Water")
     waterPlane.transform.SetPosition(Vector3(0, -1, 0))
-    waterPlane.AddComponent(Renderer(plane, Material("WaterMaterial", "std_pbr", "color")))
-    waterPlane.GetComponent(Renderer).properties.SetVector3("_Color", Vector3(0.43, 0.73, 1.0))
+    waterPlane.AddComponent(Renderer(plane, waterMaterial))
+    waterPlane.GetComponent(Renderer).properties.SetTexture("_HeightMap", heightMap)
 
     box = SceneObject("Box")
     box.transform.SetPosition(Vector3(-1, -1, -1))
     box.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
     box.transform.SetScale(Vector3(1, 1, 1) * 0.5)
-    box.AddComponent(Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr")))
-    box.GetComponent(Renderer).properties.SetTexture("_AlbedoMap", boxTex)
-    box.GetComponent(Renderer).properties.SetTexture("_NormalMap", boxTexNormal)
-    box.GetComponent(Renderer).properties.SetFloat("_Shininess", 16.0)
+
+    boxRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
+    box.AddComponent(boxRenderer)
+    boxRenderer.properties.SetTexture("_AlbedoMap", boxTex)
+    boxRenderer.properties.SetTexture("_NormalMap", boxTexNormal)
+    boxRenderer.properties.SetFloat("_Shininess", 16.0)
     box.AddComponent(Rotator(Vector3(0, 1, 0), 30))
 
     bunny = SceneObject("Bunny", box.transform)
@@ -143,6 +151,7 @@ def main():
     scene.AddObject(fish)
     scene.AddObject(box)
     scene.AddObject(waterPlane)
+
 
     camera.object.transform.SetPosition(Vector3(0, 0, -3))
     camera.object.transform.SetRotation(Quaternion.Eulerf(30, 0, 0))

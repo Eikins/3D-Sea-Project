@@ -14,6 +14,8 @@ class GLMaterialBatch:
         self.materialsToBake = []
         self.vertexShaders = dict()
         self.fragmentShaders = dict()
+        self.tesselationControlShaders = dict()
+        self.tesselationEvaluationShaders = dict()
         self.programs = dict()
         self.materialPrograms = dict()
 
@@ -33,6 +35,18 @@ class GLMaterialBatch:
             else:
                 frag = self.fragmentShaders[material.fragment]
 
+            # Add Tessellation support
+            if material.useTessellation:
+                if material.tessellationControl not in self.tesselationControlShaders:
+                    tcs = self.tesselationControlShaders[material.tessellationControl] = GLMaterialBatch.Compile("assets/shaders/" + material.tessellationControl + ".tcs", GL.GL_TESS_CONTROL_SHADER)
+                else:
+                    tcs = self.tesselationControlShaders[material.tessellationControl]
+
+                if material.tessellationEvaluation not in self.tesselationEvaluationShaders:
+                    tes = self.tesselationEvaluationShaders[material.tessellationEvaluation] = GLMaterialBatch.Compile("assets/shaders/" + material.tessellationEvaluation + ".tes", GL.GL_TESS_EVALUATION_SHADER)
+                else:
+                    tes = self.tesselationEvaluationShaders[material.tessellationEvaluation]
+            # 
 
             if (vertex, frag) in self.programs:
                 self.materialPrograms[material] = self.programs[(vertex, frag)]
@@ -40,6 +54,10 @@ class GLMaterialBatch:
                 glid = GL.glCreateProgram()
                 GL.glAttachShader(glid, vertex)
                 GL.glAttachShader(glid, frag)
+
+                if material.useTessellation:
+                    GL.glAttachShader(glid, tcs)
+                    GL.glAttachShader(glid, tes)
 
                 # Bind Std attributes
                 for attrib, loc in GLStdVBO.AttributeLocations.items():
