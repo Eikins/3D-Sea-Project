@@ -6,7 +6,7 @@ Component and Behaviour class used for objects logic
 from enum import Enum
 import numpy as np
 
-from sea3d.core import Component
+from sea3d.core import Component, Layers, Texture
 
 # TODO : Add Orthogonal camera support
 class Camera(Component):
@@ -23,6 +23,8 @@ class Camera(Component):
         self._far = far
         self.__changed = True
         self._Projection = self.GetProjectionMatrix()
+        self._renderingLayer = Layers.ALL
+        self._skybox = None
 
     def SetFOV(self, fov:float):
         self._fov = fov
@@ -40,6 +42,11 @@ class Camera(Component):
         self._far = far
         self.__changed = True
 
+    def SetRenderingLayers(self, layers:int):
+        self._renderingLayer = layers
+
+    def AttackSkyBox(self, skybox:Texture):
+        self._skybox = skybox
 
     def GetProjectionMatrix(self):
         """ Perspective projection matrix"""

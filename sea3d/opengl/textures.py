@@ -47,19 +47,32 @@ class GLTextureAtlas:
         textureIDs = [GL.glGenTextures(len(self.texturesToBake))]
         for index, glid in enumerate(textureIDs):
             tex:Texture = self.texturesToBake[index]
-            height, width = tex.data.shape[0:2]
 
-            GL.glBindTexture(GL.GL_TEXTURE_2D, glid)
-            GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, tex.data)
-            GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GLTextureAtlas.WrapModes[tex.wrapMode])
-            GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GLTextureAtlas.WrapModes[tex.wrapMode])
-            GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GLTextureAtlas.Filters[tex.filter])
+            if tex.isCubemap:
+                GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, glid)
+                for i, face in enumerate(tex.data):
+                    height, width = face.shape[0:2]
+                    GL.glTexImage2D(GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.GL_RGB, width, height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, face)
 
-            if tex.useMipmaps:
-                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GLTextureAtlas.MipFilters[(tex.mipLevelFilter, tex.mipMapFilter)])
-                GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
+                GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MAG_FILTER, GLTextureAtlas.Filters[tex.filter])
+                GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MIN_FILTER, GLTextureAtlas.Filters[tex.filter])
+                GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_S, GLTextureAtlas.WrapModes[tex.wrapMode])
+                GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_T, GLTextureAtlas.WrapModes[tex.wrapMode])
+                GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_R, GLTextureAtlas.WrapModes[tex.wrapMode])
             else:
-                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GLTextureAtlas.Filters[tex.filter])
+                height, width = tex.data.shape[0:2]
+                GL.glBindTexture(GL.GL_TEXTURE_2D, glid)
+                GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, tex.data)
+                
+                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GLTextureAtlas.WrapModes[tex.wrapMode])
+                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GLTextureAtlas.WrapModes[tex.wrapMode])
+                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GLTextureAtlas.Filters[tex.filter])
+
+                if tex.useMipmaps:
+                    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GLTextureAtlas.MipFilters[(tex.mipLevelFilter, tex.mipMapFilter)])
+                    GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
+                else:
+                    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GLTextureAtlas.Filters[tex.filter])
 
             self.textures[tex] = glid
 

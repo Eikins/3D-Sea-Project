@@ -8,7 +8,7 @@ import glfw
 import numpy as np
 
 from sea3d.math import Vector3, Quaternion
-from sea3d.core import Scene, SceneObject, Mesh, Material, Behaviour, Time, Texture, TextureWrapMode, TextureFilter
+from sea3d.core import Scene, SceneObject, Mesh, Material, Behaviour, Time, Texture, TextureWrapMode, TextureFilter, Layers
 from sea3d.core.components import Camera, Renderer
 
 from sea3d.opengl import GLWindow
@@ -77,12 +77,16 @@ def main():
     scene = Scene("Main Scene")
 
     camera = Camera(aspect=1600/900, far=1000)
+    skyboxTex = Texture.LoadFromFile("cubemaps/skybox", loadAsCubemap=True, fileExtension=".png")
+    skyboxTex.wrapMode = TextureWrapMode.CLAMP_TO_EDGE
+    camera._skybox = skyboxTex
+
     cameraObject = SceneObject("Camera 1")
     cameraObject.AddComponent(camera)
     cameraObject.transform.SetPosition(Vector3(0, 0, 0))
 
-    plane = GeneratePlane((20, 20), (20, 20))
-    plane.vertices[:, 1] += np.random.normal(size=(len(plane.vertices))) / 40
+    plane = GeneratePlane((500, 500), (250, 250))
+    # plane.vertices[:, 1] += np.random.normal(size=(len(plane.vertices))) / 40
     
     bunnyModel = Mesh.LoadFromFile("bunny.obj")[0]
     boxModel = Mesh.LoadFromFile("cube.obj")[0]
@@ -95,23 +99,26 @@ def main():
     fishTex = Texture.LoadFromFile("TropicalFish01.jpg")
     fishTexNormal = Texture.LoadFromFile("TropicalFish01_NormalMap.jpg")
 
-    heightMap = Texture.LoadFromFile("heightmap.png")
-
-    # Define the Quad Mesh
-    quad = Mesh(vertices = np.array(((-.5, -.5, 0), (.5, -.5, 0), (.5, .5, 0), (-.5, .5, 0)), 'f'),
-                normals  = np.array(((0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)), 'f'),
-                uvs = [np.array(((0, 0), (1, 0), (1, 1), (0, 1)), 'f')],
-                indexes = np.array(((0, 1, 2), (0, 2, 3)), 'u4')
-    )
-    quad.ComputeTangents()
-
+    waterNoise = Texture.LoadFromFile("noise/water.jpg")
+    terrainHeightMap = Texture.LoadFromFile("terrain/heightmap.png")
+    terrainNormalMap = Texture.LoadFromFile("terrain/normal.png")
 
     waterMaterial = Material("WaterMaterial", "water", "water")
     waterMaterial.AddTessellation("water", "water")
     waterPlane = SceneObject("Water")
+    waterPlane.layer = Layers.TRANSPARENT
     waterPlane.transform.SetPosition(Vector3(0, -1, 0))
     waterPlane.AddComponent(Renderer(plane, waterMaterial))
-    waterPlane.GetComponent(Renderer).properties.SetTexture("_HeightMap", heightMap)
+    waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", waterNoise)
+    waterPlane.GetComponent(Renderer).properties.SetTexture("_Skybox", skyboxTex)
+
+    terrainMaterial = Material("TerrainMaterial", "terrain", "terrain")
+    terrainMaterial.AddTessellation("terrain", "terrain")
+    terrain = SceneObject("Terrain")
+    terrain.transform.SetPosition(Vector3(0, -8, 0))
+    terrain.AddComponent(Renderer(plane, terrainMaterial))
+    terrain.GetComponent(Renderer).properties.SetTexture("_HeightMap", terrainHeightMap)
+    terrain.GetComponent(Renderer).properties.SetTexture("_NormalMap", terrainNormalMap)
 
     box = SceneObject("Box")
     box.transform.SetPosition(Vector3(-1, -1, -1))
@@ -144,9 +151,8 @@ def main():
     fish.GetComponent(Renderer).properties.SetTexture("_NormalMap", fishTexNormal)
     fish.GetComponent(Renderer).properties.SetFloat("_Shininess", 16.0)
 
-
-
     # Add to scene
+    scene.AddObject(terrain)
     scene.AddObject(bunny)
     scene.AddObject(fish)
     scene.AddObject(box)
@@ -154,7 +160,7 @@ def main():
 
 
     camera.object.transform.SetPosition(Vector3(0, 0, -3))
-    camera.object.transform.SetRotation(Quaternion.Eulerf(30, 0, 0))
+    camera.object.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
 
     window.AttachScene(scene)
     window.SetRenderingCamera(camera)

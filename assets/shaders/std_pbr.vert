@@ -1,6 +1,7 @@
 #version 330 core
 
-uniform mat4 _ProjectionViewMatrix;
+uniform mat4 _ProjectionMatrix;
+uniform mat4 _ViewMatrix;
 uniform mat4 _ModelMatrix;
 uniform vec3 _ViewPos;
 uniform vec3 _LightPos = vec3(20, 20, -20);
@@ -31,7 +32,7 @@ out vec2 _TexCoord6;
 out vec2 _TexCoord7;
 
 void main() {
-    gl_Position = _ProjectionViewMatrix * _ModelMatrix * vec4(InPosition, 1.0);
+    gl_Position = _ProjectionMatrix * _ViewMatrix * _ModelMatrix * vec4(InPosition, 1.0);
 
     _VertexPosition = (_ModelMatrix * vec4(InPosition, 0.0)).xyz;
 

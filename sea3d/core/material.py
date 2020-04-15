@@ -11,13 +11,14 @@ from sea3d.math import Vector3
 
 class Material:
 
-    def __init__(self, name:str, vertex:str, frag:str):
+    def __init__(self, name:str, vertex:str, frag:str, orderInQueue:int = 1000):
         self.name = name
         self.vertex = vertex
         self.fragment = frag
         self.useTessellation = False
         self.tessellationControl = ""
         self.tessellationEvaluation = ""
+        self.orderInQueue = orderInQueue
 
     def AddTessellation(self, control:str, evaluation:str):
         """

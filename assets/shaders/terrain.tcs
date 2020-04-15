@@ -21,7 +21,7 @@ out VertexData {
 } tcs_out[];
 
 #define MIN_DIST 10
-#define MAX_DIST 50
+#define MAX_DIST 200
 
 float getTessellationLevel(float d0, float d1) {
     float avg = (d0 + d1) / 2.0;

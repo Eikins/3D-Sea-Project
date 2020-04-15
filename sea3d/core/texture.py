@@ -35,19 +35,36 @@ class Texture:
         self.mipLevelFilter = TextureFilter.POINT
         self.mipMapFilter = TextureFilter.LINEAR
         self.data = data
+        self.isCubemap = False
 
     def __hash__(self):
         return hash(self.name)
 
     @staticmethod
-    def LoadFromFile(location:str) -> Texture:
+    def LoadFromFile(location:str, loadAsCubemap=False, fileExtension=None) -> Texture:
 
         if location in Texture.Atlas:
             return Texture.Atlas[location]
 
-        data = np.asarray(Image.open("assets/textures/" + location).convert("RGBA"))
+        if (loadAsCubemap):
+            if fileExtension is None:
+                fileExtension = ".png"
+            data = [
+                np.asarray(Image.open("assets/textures/" + location + "/right" + fileExtension).convert("RGB")),
+                np.asarray(Image.open("assets/textures/" + location + "/left" + fileExtension).convert("RGB")),
+                np.asarray(Image.open("assets/textures/" + location + "/top" + fileExtension).convert("RGB")),
+                np.asarray(Image.open("assets/textures/" + location + "/bottom" + fileExtension).convert("RGB")),
+                np.asarray(Image.open("assets/textures/" + location + "/front" + fileExtension).convert("RGB")),
+                np.asarray(Image.open("assets/textures/" + location + "/back" + fileExtension).convert("RGB"))
+            ]
+        else:
+            data = np.asarray(Image.open("assets/textures/" + location).convert("RGBA"))
         tex = Texture(location, data)
+        if loadAsCubemap:
+            tex.isCubemap = True
         Texture.Atlas[location] = tex
         return tex
+
+
 
     

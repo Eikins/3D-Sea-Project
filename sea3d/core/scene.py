@@ -17,6 +17,7 @@ class SceneObject:
         self.name = name
         self.transform = Transform(parent)
         self.components = []
+        self.layer = 1 # Default Layer
 
     def AddComponent(self, component: Component):
         if component.object is None:
