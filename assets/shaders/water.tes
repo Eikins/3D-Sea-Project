@@ -1,6 +1,6 @@
 #version 410 core
 
-layout (triangles, equal_spacing, ccw) in;
+layout (triangles, equal_spacing, cw) in;
 
 uniform mat4 _ViewMatrix;
 uniform mat4 _ProjectionMatrix;

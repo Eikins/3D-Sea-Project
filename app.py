@@ -26,9 +26,7 @@ class Rotator(Behaviour):
     def Update(self):
         self.object.transform._rotation *= Quaternion.AxisAngle(self.axis, self.speed * Time.deltaTime)
         self.object.transform.MarkForUpdate()
-
-
-        self.renderer.properties.SetVector3("_Color", Vector3(1.0, 0.2, 0.2) * (np.sin(Time.time) * 0.5 + 0.5))
+        # self.renderer.properties.SetVector3("_Color", Vector3(1.0, 0.2, 0.2) * (np.sin(Time.time) * 0.5 + 0.5))
 
 
 def GeneratePlane(size = (10, 10), count = (2, 2), repeat_uv = False):
@@ -107,7 +105,7 @@ def main():
     waterMaterial.AddTessellation("water", "water")
     waterPlane = SceneObject("Water")
     waterPlane.layer = Layers.TRANSPARENT
-    waterPlane.transform.SetPosition(Vector3(0, -1, 0))
+    waterPlane.transform.SetPosition(Vector3(0, 5, 0))
     waterPlane.AddComponent(Renderer(plane, waterMaterial))
     waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", waterNoise)
     waterPlane.GetComponent(Renderer).properties.SetTexture("_Skybox", skyboxTex)
