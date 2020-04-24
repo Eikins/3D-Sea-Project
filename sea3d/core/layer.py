@@ -10,4 +10,5 @@ class Layers(IntFlag):
     DEFAULT = 1
     VFX = 2
     TRANSPARENT = 4
+    WATER = 8
     ALL = (2 ** 32) - 1

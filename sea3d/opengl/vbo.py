@@ -46,10 +46,14 @@ class GLVertexBufferObject:
             self.draw_command = GL.glDrawArrays
             self.arguments = (0, n)
 
+        GL.glBindVertexArray(0)
+
     def Draw(self):
         GL.glBindVertexArray(self.glid)
         self.draw_command(self.primitive, *self.arguments)
 
     def __del__(self):
-        GL.glDeleteVertexArrays(1, [self.glid])
-        GL.glDeleteBuffers(len(self.buffers), self.buffers)
+        if self.glid is not None:
+            GL.glDeleteVertexArrays(1, [self.glid])
+        if not self.buffers:
+            GL.glDeleteBuffers(len(self.buffers), self.buffers)

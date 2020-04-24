@@ -92,8 +92,8 @@ def main():
 
     bunnyTex = Texture.LoadFromFile("bunny.png")
     bunnyTexNormal = Texture.LoadFromFile("bunny_normal.png")
-    boxTex = Texture.LoadFromFile("cube.png")
-    boxTexNormal = Texture.LoadFromFile("normal.png")
+    boxTex = Texture.LoadFromFile("pbr/rockface/albedo.png")
+    boxTexNormal = Texture.LoadFromFile("pbr/rockface/normal.png")
     fishTex = Texture.LoadFromFile("TropicalFish01.jpg")
     fishTexNormal = Texture.LoadFromFile("TropicalFish01_NormalMap.jpg")
 
@@ -104,7 +104,7 @@ def main():
     waterMaterial = Material("WaterMaterial", "water", "water")
     waterMaterial.AddTessellation("water", "water")
     waterPlane = SceneObject("Water")
-    waterPlane.layer = Layers.TRANSPARENT
+    waterPlane.layer = Layers.WATER
     waterPlane.transform.SetPosition(Vector3(0, 5, 0))
     waterPlane.AddComponent(Renderer(plane, waterMaterial))
     waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", waterNoise)
@@ -113,10 +113,12 @@ def main():
     terrainMaterial = Material("TerrainMaterial", "terrain", "terrain")
     terrainMaterial.AddTessellation("terrain", "terrain")
     terrain = SceneObject("Terrain")
-    terrain.transform.SetPosition(Vector3(0, -8, 0))
+    terrain.transform.SetPosition(Vector3(0, -18, 0))
     terrain.AddComponent(Renderer(plane, terrainMaterial))
     terrain.GetComponent(Renderer).properties.SetTexture("_HeightMap", terrainHeightMap)
     terrain.GetComponent(Renderer).properties.SetTexture("_NormalMap", terrainNormalMap)
+
+    
 
     box = SceneObject("Box")
     box.transform.SetPosition(Vector3(-1, -1, -1))
@@ -127,7 +129,9 @@ def main():
     box.AddComponent(boxRenderer)
     boxRenderer.properties.SetTexture("_AlbedoMap", boxTex)
     boxRenderer.properties.SetTexture("_NormalMap", boxTexNormal)
-    boxRenderer.properties.SetFloat("_Shininess", 16.0)
+    boxRenderer.properties.SetFloat("_Shininess", 8.0)
+    boxRenderer.properties.SetFloat("_Diffusion", 0.5)
+    boxRenderer.properties.SetFloat("_Emission", 0.3)
     box.AddComponent(Rotator(Vector3(0, 1, 0), 30))
 
     bunny = SceneObject("Bunny", box.transform)
@@ -137,7 +141,7 @@ def main():
     bunny.GetComponent(Renderer).properties.SetTexture("_AlbedoMap", bunnyTex)
     bunny.GetComponent(Renderer).properties.SetTexture("_NormalMap", bunnyTexNormal)
     bunny.GetComponent(Renderer).properties.SetFloat("_Shininess", 1.0)
-    bunny.GetComponent(Renderer).properties.SetFloat("_Emission", 0.3)
+    bunny.GetComponent(Renderer).properties.SetFloat("_Emission", 0.1)
     bunny.GetComponent(Renderer).properties.SetFloat("_Diffusion", 0.4)
 
     fish = SceneObject("Fish")

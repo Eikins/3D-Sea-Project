@@ -6,7 +6,7 @@ out vec4 outColor;
 uniform sampler2D _AlbedoMap;
 uniform sampler2D _NormalMap;
 uniform float _Emission = 0.05;
-uniform float _Diffusion = 1.0;
+uniform float _Diffusion = 0.5;
 uniform float _Shininess = 8.0;
 
 uniform vec3 _ViewPos;
@@ -32,10 +32,11 @@ void main() {
     vec3 viewDir    = normalize(_ViewPos - _VertexPosition);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
-    mat3 invTBN = transpose(mat3(_VertexTangeant, _VertexBitangeant, _VertexNormal));
-    lightDir = invTBN * lightDir;
-    viewDir = invTBN * viewDir;
-    halfwayDir = invTBN * halfwayDir;
+    mat3 invTBN = mat3(_VertexTangeant, _VertexBitangeant, _VertexNormal);
+    // lightDir = invTBN * lightDir;
+    // viewDir = invTBN * viewDir;
+    // halfwayDir = invTBN * halfwayDir;
+    normal = invTBN * normal;
  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), _Shininess);
     vec3 specular = vec3(0.3) * spec;
