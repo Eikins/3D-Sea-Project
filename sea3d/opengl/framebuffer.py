@@ -157,8 +157,6 @@ class GLFramebuffer:
             GL.glDeleteTextures(1, [self.texture])
         if self.glid is not None:
             GL.glDeleteFramebuffers(1, [self.glid])
-        if self.vbo is not None:
-            GL.glDeleteBuffers(1, [self.vbo])
         if self.program is not None:
             GL.glDeleteProgram(self.program)
 

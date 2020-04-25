@@ -14,3 +14,9 @@ class Renderer(Component):
         self.material = material
         if propertyBlock is None:
             self.properties = PropertyBlock()
+        else:
+            self.properties = propertyBlock
+
+    def Copy(self):
+        """ Copy the renderer, but be careful, they share the same model and property block ! """
+        return Renderer(self.mesh, self.material, self.properties)

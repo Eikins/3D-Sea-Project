@@ -47,13 +47,15 @@ class GLWindow:
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
-        self.mode = cycle([GL.GL_LINE, GL.GL_FILL])
+        self.mode = cycle([(GL.GL_LINE, False), (GL.GL_FILL, True)])
 
     def OnKey(self, _win, key, _scancode, action, _mods):
 
         if action == glfw.PRESS:
             if key == glfw.KEY_Y:
-                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, next(self.mode))
+                mode = next(self.mode)
+                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, mode[0])
+                self.pipeline.postProcess = mode[1]
 
         if action == glfw.PRESS or action == glfw.REPEAT:
             if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
@@ -112,12 +114,12 @@ class GLWindow:
         glfw.set_time(0.0)
         lastFrameTime = glfw.get_time()
 
-        pipeline = GLRenderPipeline(self.scene, self.camera, self.width, self.height)
-        pipeline.Init()
+        self.pipeline = GLRenderPipeline(self.scene, self.camera, self.width, self.height)
+        self.pipeline.Init()
 
         while not glfw.window_should_close(self.window):
 
-            pipeline.Execute()
+            self.pipeline.Execute()
 
             # Flush render commands, and swap buffers
             glfw.swap_buffers(self.window)

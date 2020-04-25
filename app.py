@@ -28,6 +28,23 @@ class Rotator(Behaviour):
         self.object.transform.MarkForUpdate()
         # self.renderer.properties.SetVector3("_Color", Vector3(1.0, 0.2, 0.2) * (np.sin(Time.time) * 0.5 + 0.5))
 
+class Fornicator(Behaviour):
+
+    def __init__(self, axis:Vector3, angle:float, speed:float):
+        super().__init__()
+        self.axis = axis
+        self.speed = speed
+        self.angle = angle
+
+
+    def Start(self):
+        self.baseRotation = self.object.transform._rotation
+
+    def Update(self):
+        self.object.transform._rotation = self.baseRotation * Quaternion.AxisAngle(self.axis, np.sin(self.speed * Time.time) * self.angle)
+        self.object.transform.MarkForUpdate()
+
+
 
 def GeneratePlane(size = (10, 10), count = (2, 2), repeat_uv = False):
     w, h = size
@@ -81,33 +98,84 @@ def main():
 
     cameraObject = SceneObject("Camera 1")
     cameraObject.AddComponent(camera)
-    cameraObject.transform.SetPosition(Vector3(0, 0, 0))
 
     plane = GeneratePlane((500, 500), (250, 250))
-    # plane.vertices[:, 1] += np.random.normal(size=(len(plane.vertices))) / 40
-    
-    bunnyModel = Mesh.LoadFromFile("bunny.obj")[0]
-    boxModel = Mesh.LoadFromFile("cube.obj")[0]
-    fishModel = Mesh.LoadFromFile("TropicalFish01.obj")[0]
 
-    bunnyTex = Texture.LoadFromFile("bunny.png")
-    bunnyTexNormal = Texture.LoadFromFile("bunny_normal.png")
-    boxTex = Texture.LoadFromFile("pbr/rockface/albedo.png")
-    boxTexNormal = Texture.LoadFromFile("pbr/rockface/normal.png")
-    fishTex = Texture.LoadFromFile("TropicalFish01.jpg")
-    fishTexNormal = Texture.LoadFromFile("TropicalFish01_NormalMap.jpg")
+    # DEFAULT
+    defaultAlbedo = Texture.LoadFromFile("pbr/default/ao.png")
+    defaultNormal = Texture.LoadFromFile("pbr/default/normal.png")
+    defaultRoughness = Texture.LoadFromFile("pbr/default/roughness.png")
+    defaultMetalness = Texture.LoadFromFile("pbr/default/metalness.png")
+    defaultAO = Texture.LoadFromFile("pbr/default/ao.png")
 
-    waterNoise = Texture.LoadFromFile("noise/water.jpg")
-    terrainHeightMap = Texture.LoadFromFile("terrain/heightmap.png")
-    terrainNormalMap = Texture.LoadFromFile("terrain/normal.png")
+    # CLOWNFISHES
+    clownFishModel = Mesh.LoadFromFile("clownfish/clownfish.fbx")[0]
+    clownFishAlbedo = Texture.LoadFromFile("pbr/clownfish/albedo.png")
+    clownFishNormal = Texture.LoadFromFile("pbr/clownfish/normal.png")
 
+    renderer = Renderer(clownFishModel, Material("Standard", "std_pbr", "std_pbr"))
+    renderer.properties.SetTexture("_Albedo", clownFishAlbedo)
+    renderer.properties.SetTexture("_Normal", clownFishNormal)
+    renderer.properties.SetTexture("_Roughness", defaultRoughness)
+    renderer.properties.SetTexture("_Metalness", defaultMetalness)
+    renderer.properties.SetTexture("_AmbientOcclusion", defaultAO)
+    renderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+
+    clownFish01 = SceneObject("ClownFish 1")
+    clownFish01.AddComponent(renderer.Copy())
+    clownFish01.transform.SetPosition(Vector3(0, 0, 0))
+    clownFish01.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
+    clownFish01.transform.SetScale(Vector3(1, 1, 1) * 0.1)
+
+    clownFish02 = SceneObject("ClownFish 2")
+    clownFish02.AddComponent(renderer.Copy())
+    clownFish02.transform.SetPosition(Vector3(-0.25, -2.2, 0))
+    clownFish02.transform.SetRotation(Quaternion.Eulerf(0, 0, 30))
+    clownFish02.transform.SetScale(Vector3(1, 1, 1) * 0.1)
+
+    # clownFish02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 25))
+
+    scene.AddObject(clownFish01)
+    scene.AddObject(clownFish02)
+
+    # BARRACUDA
+    barracudaModel = Mesh.LoadFromFile("barracuda/barracuda.fbx")[0]
+    barracudaAlbedo = Texture.LoadFromFile("pbr/barracuda/albedo.png")
+    barracudaNormal = Texture.LoadFromFile("pbr/barracuda/normal.png")
+
+    renderer = Renderer(barracudaModel, Material("Standard", "std_pbr", "std_pbr"))
+    renderer.properties.SetTexture("_Albedo", barracudaAlbedo)
+    renderer.properties.SetTexture("_Normal", barracudaNormal)
+    renderer.properties.SetTexture("_Roughness", defaultRoughness)
+    renderer.properties.SetTexture("_Metalness", defaultMetalness)
+    renderer.properties.SetTexture("_AmbientOcclusion", defaultAO)
+    renderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+
+    barracuda01 = SceneObject("Barracuda 1")
+    barracuda01.AddComponent(renderer.Copy())
+    barracuda01.transform.SetPosition(Vector3(2, 0, 0))
+    barracuda01.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
+    barracuda01.transform.SetScale(Vector3(1, 1, 1) * 0.1)
+
+    barracuda02 = SceneObject("Barracuda 2")
+    barracuda02.AddComponent(renderer.Copy())
+    barracuda02.transform.SetPosition(Vector3(1.75, -2.2, 0))
+    barracuda02.transform.SetRotation(Quaternion.Eulerf(0, 0, 30))
+    barracuda02.transform.SetScale(Vector3(1, 1, 1) * 0.1)
+
+    # barracuda02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 15))
+
+    scene.AddObject(barracuda01)
+    scene.AddObject(barracuda02)
+
+    # WATER & TERRAIN
     waterMaterial = Material("WaterMaterial", "water", "water")
     waterMaterial.AddTessellation("water", "water")
     waterPlane = SceneObject("Water")
     waterPlane.layer = Layers.WATER
     waterPlane.transform.SetPosition(Vector3(0, 5, 0))
     waterPlane.AddComponent(Renderer(plane, waterMaterial))
-    waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", waterNoise)
+    waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", Texture.LoadFromFile("noise/water.jpg"))
     waterPlane.GetComponent(Renderer).properties.SetTexture("_Skybox", skyboxTex)
 
     terrainMaterial = Material("TerrainMaterial", "terrain", "terrain")
@@ -115,53 +183,81 @@ def main():
     terrain = SceneObject("Terrain")
     terrain.transform.SetPosition(Vector3(0, -18, 0))
     terrain.AddComponent(Renderer(plane, terrainMaterial))
-    terrain.GetComponent(Renderer).properties.SetTexture("_HeightMap", terrainHeightMap)
-    terrain.GetComponent(Renderer).properties.SetTexture("_NormalMap", terrainNormalMap)
-
+    terrain.GetComponent(Renderer).properties.SetTexture("_HeightMap", Texture.LoadFromFile("terrain/heightmap.png"))
+    terrain.GetComponent(Renderer).properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/water_stone/albedo.png"))
+    terrain.GetComponent(Renderer).properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/water_stone/normal.png"))
+    terrain.GetComponent(Renderer).properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/water_stone/roughness.png"))
+    terrain.GetComponent(Renderer).properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/water_stone/metalness.png"))
+    terrain.GetComponent(Renderer).properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
     
-
-    box = SceneObject("Box")
-    box.transform.SetPosition(Vector3(-1, -1, -1))
-    box.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
-    box.transform.SetScale(Vector3(1, 1, 1) * 0.5)
-
-    boxRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
-    box.AddComponent(boxRenderer)
-    boxRenderer.properties.SetTexture("_AlbedoMap", boxTex)
-    boxRenderer.properties.SetTexture("_NormalMap", boxTexNormal)
-    boxRenderer.properties.SetFloat("_Shininess", 8.0)
-    boxRenderer.properties.SetFloat("_Diffusion", 0.5)
-    boxRenderer.properties.SetFloat("_Emission", 0.3)
-    box.AddComponent(Rotator(Vector3(0, 1, 0), 30))
-
-    bunny = SceneObject("Bunny", box.transform)
-    bunny.transform.SetPosition(Vector3(0, 1, 0))
-    bunny.transform.SetRotation(Quaternion.Eulerf(0, 180, 0))
-    bunny.AddComponent(Renderer(bunnyModel, Material("Standard", "std_pbr", "std_pbr")))
-    bunny.GetComponent(Renderer).properties.SetTexture("_AlbedoMap", bunnyTex)
-    bunny.GetComponent(Renderer).properties.SetTexture("_NormalMap", bunnyTexNormal)
-    bunny.GetComponent(Renderer).properties.SetFloat("_Shininess", 1.0)
-    bunny.GetComponent(Renderer).properties.SetFloat("_Emission", 0.1)
-    bunny.GetComponent(Renderer).properties.SetFloat("_Diffusion", 0.4)
-
-    fish = SceneObject("Fish")
-    fish.transform.SetPosition(Vector3(3, -3, 3))
-    fish.transform.SetRotation(Quaternion.Eulerf(0, 75, 0))
-    fish.transform.SetScale(Vector3(1, 1, 1) * 0.002)
-    fish.AddComponent(Renderer(fishModel, Material("Standard", "std_pbr", "std_pbr")))
-    fish.GetComponent(Renderer).properties.SetTexture("_AlbedoMap", fishTex)
-    fish.GetComponent(Renderer).properties.SetTexture("_NormalMap", fishTexNormal)
-    fish.GetComponent(Renderer).properties.SetFloat("_Shininess", 16.0)
-
-    # Add to scene
     scene.AddObject(terrain)
-    scene.AddObject(bunny)
-    scene.AddObject(fish)
-    scene.AddObject(box)
     scene.AddObject(waterPlane)
 
+    # PBR TEST
 
-    camera.object.transform.SetPosition(Vector3(0, 0, -3))
+    boxModel = Mesh.LoadFromFile("cube.obj")[0]
+
+    pbrTest = SceneObject("PBRTest")
+    pbrTest.transform.SetPosition(Vector3(0, 7, -2))
+    pbrTest.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
+    pbrTest.transform.SetScale(Vector3(1, 1, 1) * 0.5)
+
+    pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
+
+    pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/rock_1/albedo.png"))
+    pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/rock_1/normal.png"))
+    pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/rock_1/roughness.png"))
+    pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/rock_1/metalness.png"))
+    pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/rock_1/ao.png"))
+    pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+
+    pbrTest.AddComponent(pbrTestRenderer)
+    pbrTest.AddComponent(Rotator(Vector3(0, 1, 0), 30))
+
+    # PBR TEST2
+
+    pbrTest1 = SceneObject("PBRTest")
+    pbrTest1.transform.SetPosition(Vector3(1, 7, -2))
+    pbrTest1.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
+    pbrTest1.transform.SetScale(Vector3(1, 1, 1) * 0.5)
+
+    pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
+
+    pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/water_stone/albedo.png"))
+    pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/water_stone/normal.png"))
+    pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/water_stone/roughness.png"))
+    pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/water_stone/metalness.png"))
+    pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
+    pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+
+    pbrTest1.AddComponent(pbrTestRenderer)
+    pbrTest1.AddComponent(Rotator(Vector3(0, 1, 0), 30))
+
+    # PBR TEST3
+    pbrTest2 = SceneObject("PBRTest")
+    pbrTest2.transform.SetPosition(Vector3(-1, 7, -2))
+    pbrTest2.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
+    pbrTest2.transform.SetScale(Vector3(1, 1, 1) * 0.5)
+
+    pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
+
+    pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/rusted_iron/albedo.png"))
+    pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/rusted_iron/normal.png"))
+    pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/rusted_iron/roughness.png"))
+    pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/rusted_iron/metalness.png"))
+    pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/rusted_iron/ao.png"))
+    pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+
+    pbrTest2.AddComponent(pbrTestRenderer)
+    pbrTest2.AddComponent(Rotator(Vector3(0, 1, 0), 30))
+
+    scene.AddObject(pbrTest)
+    scene.AddObject(pbrTest1)
+    scene.AddObject(pbrTest2)
+
+
+
+    camera.object.transform.SetPosition(Vector3(0, 7, -3))
     camera.object.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
 
     window.AttachScene(scene)

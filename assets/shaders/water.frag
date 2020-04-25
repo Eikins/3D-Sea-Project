@@ -6,6 +6,9 @@ uniform vec3 _ViewPos;
 
 uniform sampler2D _Noise;
 uniform samplerCube _Skybox;
+uniform float _Time;
+
+#define NOISE_DIR vec2(0.15, -0.2)
 
 const vec3 _WorldLightDir = normalize(vec3(1.0, 1.0, 1.0));
 
@@ -24,21 +27,12 @@ void main() {
     vec3 lightDir   = -_WorldLightDir;
     vec3 viewDir    = normalize(_ViewPos - tes_out.VertexPosition);
 
-    vec3 noise = texture(_Noise, tes_out.TexCoord0 * 8.0).rgb;
+    vec3 noise = texture(_Noise, tes_out.TexCoord0 * 125.0 + NOISE_DIR * _Time).rgb;
     noise -= vec3(0.5, 0.0, 0.5);
     noise *= 0.5;
 
     vec3 normal     = tes_out.VertexNormal + noise;
     vec3 reflection = reflect(-viewDir, normal);
-    // vec3 halfwayDir = normalize(lightDir + viewDir);
- 
-    // float spec = pow(max(dot(tes_out.VertexNormal, halfwayDir), 0.0), 8.0);
-    // vec3 specular = vec3(1.0) * spec;
 
-    // vec3 ambient = 0.00 * albedo.rgb;
-
-    // float diff = max(dot(lightDir, tes_out.VertexNormal), 0.0);
-    // vec3 diffuse = diff * albedo.rgb * 1.0;
-
-    FragColor = vec4(texture(_Skybox, reflection).rgb, albedo.a);
+    FragColor = vec4(texture(_Skybox, reflection).rgb * 0.7 + albedo.rgb * 0.3, albedo.a);
 }

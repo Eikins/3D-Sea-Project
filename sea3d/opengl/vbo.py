@@ -51,6 +51,7 @@ class GLVertexBufferObject:
     def Draw(self):
         GL.glBindVertexArray(self.glid)
         self.draw_command(self.primitive, *self.arguments)
+        GL.glBindVertexArray(0)
 
     def __del__(self):
         if self.glid is not None:

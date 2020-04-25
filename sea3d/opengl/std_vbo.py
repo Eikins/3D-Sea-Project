@@ -16,7 +16,7 @@ class GLStdVBO(GLVertexBufferObject):
     AttributeLocations = {
         "InPosition":0,
         "InNormal":1,
-        "InTangeant":2, # Optional
+        "InTangent":2, # Optional
         "InTexCoord0":3,
         "InTexCoord1":4,
         "InTexCoord2":5,

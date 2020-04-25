@@ -30,6 +30,7 @@ class GLRenderPipeline:
         self.width = width
         self.height = height
         self.framebuffer = None
+        self.postProcess = True
 
     def Init(self):
         # initialize GL by setting viewport and default render characteristics
@@ -76,15 +77,15 @@ class GLRenderPipeline:
         self._View = np.linalg.inv(self.camera.object.transform.GetTRSMatrix())
         self._ViewPos = self.camera.object.transform._position
 
-        self.framebuffer.Bind()
+        if self.postProcess:
+            self.framebuffer.Bind()
         self.DrawFrame()
-        self.framebuffer.Unbind()
-
-        props = PropertyBlock()
-        props.SetVector3("_ViewPos", self._ViewPos)
-        props.SetFloat("_Time", Time.time)   
-
-        self.framebuffer.Draw(props)
+        if self.postProcess:
+            self.framebuffer.Unbind()
+            props = PropertyBlock()
+            props.SetVector3("_ViewPos", self._ViewPos)
+            props.SetFloat("_Time", Time.time)   
+            self.framebuffer.Draw(props)
 
     def DrawFrame(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
