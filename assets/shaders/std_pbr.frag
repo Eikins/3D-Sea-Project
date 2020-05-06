@@ -11,9 +11,10 @@ uniform sampler2D _AmbientOcclusion;
 
 uniform samplerCube _ReflectionProbe;
 
+
 uniform vec3 _ViewPos;
 
-const vec3 _WorldLightDir = normalize(vec3(0.5, -1, 0.5));
+const vec3 _WorldLightDir = normalize(vec3(-0.5, -1, -0.5));
 
 in VertexOutput {
     vec3 Position;
@@ -114,7 +115,7 @@ void main() {
         direct += (diffuse + specular) * vec3(1.0) * NdotL;
     }
 
-    vec3 indirect = vec3(0.03) * baseColor;
+    vec3 indirect = vec3(0.03) * baseColor + (texture(_ReflectionProbe, reflection).rgb * 0.02 * metalness);
 
     vec3 color = (direct + indirect) * ambienOcclusion;
     FragColor = vec4(LinearToGamma(color), 1.0);

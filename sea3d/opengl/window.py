@@ -61,46 +61,49 @@ class GLWindow:
             if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
                 glfw.set_window_should_close(self.window, True)
 
+            movement = None
+            rotate = None
+
+            moveSpeed = 10
+            rotateSpeed = 360
+
             if key == glfw.KEY_LEFT:
-                self.camera.object.transform._position += -1 * Vector3(1, 0, 0) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.RightVector() * -1
 
             if key == glfw.KEY_RIGHT:
-                self.camera.object.transform._position += Vector3(1, 0, 0) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.RightVector()
 
             if key == glfw.KEY_UP:
-                self.camera.object.transform._position += Vector3(0, 0, 1) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.ForwardVector()
 
             if key == glfw.KEY_DOWN:
-                self.camera.object.transform._position += -1 * Vector3(0, 0, 1) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.ForwardVector() * -1
 
             if key == glfw.KEY_SPACE:
-                self.camera.object.transform._position += Vector3(0, 1, 0) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.UpVector()
 
             if key == glfw.KEY_LEFT_SHIFT:
-                self.camera.object.transform._position += -1 * Vector3(0, 1, 0) * 5 * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
+                movement = self.camera.object.transform._rotation.UpVector() * -1
 
             if key == glfw.KEY_R:
-                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), 60 * Time.deltaTime)
-                self.camera.object.transform.MarkForUpdate()
+                rotate = Quaternion.AxisAngle(Vector3(0, 1, 0), rotateSpeed * Time.deltaTime)
 
             if key == glfw.KEY_T:
-                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(0, 1, 0), -60 * Time.deltaTime)
-                self.camera.object.transform.MarkForUpdate()
+                rotate = Quaternion.AxisAngle(Vector3(0, 1, 0), -rotateSpeed * Time.deltaTime)
 
             if key == glfw.KEY_U:
-                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(1, 0, 0), -60 * Time.deltaTime)
-                self.camera.object.transform.MarkForUpdate()
+                rotate = Quaternion.AxisAngle(Vector3(1, 0, 0), rotateSpeed * Time.deltaTime)
 
             if key == glfw.KEY_J:
-                self.camera.object.transform._rotation *= Quaternion.AxisAngle(Vector3(1, 0, 0), 60 * Time.deltaTime)
+                rotate = Quaternion.AxisAngle(Vector3(1, 0, 0), -rotateSpeed * Time.deltaTime)
+
+            if movement:
+                self.camera.object.transform._position += movement * moveSpeed * Time.deltaTime
                 self.camera.object.transform.MarkForUpdate()
 
+            if rotate:
+                self.camera.object.transform._rotation *= rotate
+                self.camera.object.transform.MarkForUpdate()
 
     def AttachScene(self, scene:Scene):
         glfw.set_window_title(self.window, scene.name)
@@ -124,15 +127,10 @@ class GLWindow:
             # Flush render commands, and swap buffers
             glfw.swap_buffers(self.window)
 
-            # Poll for and process events
-            glfw.poll_events()
-
             # Update Delta Time
             Time.time = glfw.get_time()
             Time.deltaTime = Time.time - lastFrameTime
             lastFrameTime = Time.time
 
-            if (Time.deltaTime < 1.0 / 60.0):
-                pythonTime.sleep (1.0 / 60.0 - Time.deltaTime)
-                Time.deltaTime = 1.0 / 60.0
-                Time.time = glfw.get_time()
+            # Poll for and process events
+            glfw.poll_events()

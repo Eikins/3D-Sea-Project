@@ -10,7 +10,7 @@ uniform vec3 _ViewPos;
 in vec2 _TexCoord;
 
 // CONSTANTS
-#define WATER_LEVEL 5.25
+#define WATER_LEVEL 5
 #define MAX_DEPTH 25.25
 vec3 _Color = vec3(0.37, 0.59, 0.85);
 

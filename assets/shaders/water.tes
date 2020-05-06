@@ -12,7 +12,6 @@ in VertexData {
     vec3 VertexPosition;
     vec3 VertexNormal;
     vec3 VertexTangeant;
-    vec3 VertexBitangeant;
     vec2 TexCoord0;
 } tcs_out[];
 
@@ -20,7 +19,6 @@ out VertexData {
     vec3 VertexPosition;
     vec3 VertexNormal;
     vec3 VertexTangeant;
-    vec3 VertexBitangeant;
     vec2 TexCoord0;
 } tes_out;
 
@@ -74,14 +72,13 @@ vec3 gerstnerTrochoidal(vec2 surface, out vec3 normal) {
         ddx += comp * gerstners[i].Propagation.x;
         ddz += comp * gerstners[i].Propagation.y;
     }
-    normal = normalize(cross(ddx, ddz));
+    normal = normalize(cross(ddz, ddx));
     return pos;
 }
 
 void main() {
     tes_out.VertexPosition = interpolate3D(tcs_out[0].VertexPosition, tcs_out[1].VertexPosition, tcs_out[2].VertexPosition);
     tes_out.VertexTangeant = interpolate3D(tcs_out[0].VertexTangeant, tcs_out[1].VertexTangeant, tcs_out[2].VertexTangeant);
-    tes_out.VertexBitangeant = interpolate3D(tcs_out[0].VertexBitangeant, tcs_out[1].VertexBitangeant, tcs_out[2].VertexBitangeant);
     tes_out.TexCoord0 = interpolate2D(tcs_out[0].TexCoord0, tcs_out[1].TexCoord0, tcs_out[2].TexCoord0);
 
     //tes_out.VertexPosition.y += texture(_HeightMap, tes_out.TexCoord0).r * 10;

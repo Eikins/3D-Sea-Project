@@ -8,7 +8,7 @@ import glfw
 import numpy as np
 
 from sea3d.core import PropertyBlock
-from sea3d.opengl import GLMaterialBatch, GLVertexBufferObject
+from sea3d.opengl import GLMaterialBatch, GLVertexArrayObject
 
 class GLFramebuffer:
 
@@ -87,7 +87,7 @@ class GLFramebuffer:
             (-1.0, 1.0), (1.0, -1.0), (1.0, 1.0)
         ),'f')
 
-        self.vbo = GLVertexBufferObject()
+        self.vbo = GLVertexArrayObject()
         self.vbo.Init([vertices])
 
 

@@ -9,9 +9,9 @@ import numpy as np
 
 from sea3d.core import Mesh
 
-from sea3d.opengl import GLVertexBufferObject
+from sea3d.opengl import GLVertexArrayObject
 
-class GLSkybox(GLVertexBufferObject):
+class GLSkybox(GLVertexArrayObject):
 
     def __init__(self):
         super().__init__()

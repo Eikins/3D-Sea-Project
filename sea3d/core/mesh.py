@@ -7,8 +7,6 @@ import assimpcy.all as assimpcy
 
 from sea3d.math import NumpyUtils
 
-
-
 class Mesh:
     """
     Attributes:

@@ -9,9 +9,9 @@ import numpy as np
 
 from sea3d.core import Mesh
 
-from sea3d.opengl import GLVertexBufferObject
+from sea3d.opengl import GLVertexArrayObject
 
-class GLStdVBO(GLVertexBufferObject):
+class GLStdVBO(GLVertexArrayObject):
 
     AttributeLocations = {
         "InPosition":0,

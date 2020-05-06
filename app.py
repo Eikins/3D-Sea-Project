@@ -8,8 +8,8 @@ import glfw
 import numpy as np
 
 from sea3d.math import Vector3, Quaternion
-from sea3d.core import Scene, SceneObject, Mesh, Material, Behaviour, Time, Texture, TextureWrapMode, TextureFilter, Layers
-from sea3d.core.components import Camera, Renderer
+from sea3d.core import Scene, SceneObject, Mesh, Material, Behaviour, Time, Texture, TextureWrapMode, TextureFilter, Layers, KeyFrames, Animation
+from sea3d.core.components import Camera, Renderer, Animator
 
 from sea3d.opengl import GLWindow
 
@@ -129,14 +129,14 @@ def main():
 
     clownFish02 = SceneObject("ClownFish 2")
     clownFish02.AddComponent(renderer.Copy())
-    clownFish02.transform.SetPosition(Vector3(-0.25, -2.2, 0))
+    clownFish02.transform.SetPosition(Vector3(-0.25, 0.2, 0))
     clownFish02.transform.SetRotation(Quaternion.Eulerf(0, 0, 30))
     clownFish02.transform.SetScale(Vector3(1, 1, 1) * 0.1)
 
-    # clownFish02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 25))
+    clownFish02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 25))
 
     scene.AddObject(clownFish01)
-    scene.AddObject(clownFish02)
+    #scene.AddObject(clownFish02)
 
     # BARRACUDA
     barracudaModel = Mesh.LoadFromFile("barracuda/barracuda.fbx")[0]
@@ -159,14 +159,14 @@ def main():
 
     barracuda02 = SceneObject("Barracuda 2")
     barracuda02.AddComponent(renderer.Copy())
-    barracuda02.transform.SetPosition(Vector3(1.75, -2.2, 0))
+    barracuda02.transform.SetPosition(Vector3(1.75, .2, 0))
     barracuda02.transform.SetRotation(Quaternion.Eulerf(0, 0, 30))
     barracuda02.transform.SetScale(Vector3(1, 1, 1) * 0.1)
 
-    # barracuda02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 15))
+    #barracuda02.AddComponent(Fornicator(Vector3(0, 0, 1), 10, 15))
 
     scene.AddObject(barracuda01)
-    scene.AddObject(barracuda02)
+    #scene.AddObject(barracuda02)
 
     # WATER & TERRAIN
     waterMaterial = Material("WaterMaterial", "water", "water")
@@ -175,7 +175,7 @@ def main():
     waterPlane.layer = Layers.WATER
     waterPlane.transform.SetPosition(Vector3(0, 5, 0))
     waterPlane.AddComponent(Renderer(plane, waterMaterial))
-    waterPlane.GetComponent(Renderer).properties.SetTexture("_Noise", Texture.LoadFromFile("noise/water.jpg"))
+    waterPlane.GetComponent(Renderer).properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/water/normal.jpg"))
     waterPlane.GetComponent(Renderer).properties.SetTexture("_Skybox", skyboxTex)
 
     terrainMaterial = Material("TerrainMaterial", "terrain", "terrain")
@@ -211,8 +211,18 @@ def main():
     pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/rock_1/ao.png"))
     pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
 
-    pbrTest.AddComponent(pbrTestRenderer)
+    pbrTest.AddComponent(pbrTestRenderer.Copy())
     pbrTest.AddComponent(Rotator(Vector3(0, 1, 0), 30))
+
+
+    # floatLerp = lambda a, b, t : a + (b - a) * t
+
+    moveAnim = Animation({
+        pbrTest.transform.SetPosition: KeyFrames({0: Vector3(0, 7, -2), 10: Vector3(0, 7, 4)}, Vector3.Lerp),
+        pbrTest.transform.SetRotation: KeyFrames({0: Quaternion(), 5: Quaternion.Eulerf(0, 180, 0)}, Quaternion.Slerp)
+    })
+
+    pbrTest.AddComponent(Animator(moveAnim, playOnStart=True, loop=True))
 
     # PBR TEST2
 
@@ -230,7 +240,7 @@ def main():
     pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
     pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
 
-    pbrTest1.AddComponent(pbrTestRenderer)
+    pbrTest1.AddComponent(pbrTestRenderer.Copy())
     pbrTest1.AddComponent(Rotator(Vector3(0, 1, 0), 30))
 
     # PBR TEST3
@@ -254,8 +264,6 @@ def main():
     scene.AddObject(pbrTest)
     scene.AddObject(pbrTest1)
     scene.AddObject(pbrTest2)
-
-
 
     camera.object.transform.SetPosition(Vector3(0, 7, -3))
     camera.object.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))

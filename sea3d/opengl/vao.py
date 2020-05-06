@@ -9,7 +9,7 @@ import numpy as np
 
 from sea3d.core import Mesh
 
-class GLVertexBufferObject:
+class GLVertexArrayObject:
 
     def __init__(self):
         self.glid = None

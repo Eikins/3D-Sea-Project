@@ -9,6 +9,7 @@ Vector3 class
 from __future__ import annotations
 
 from numbers import Number
+import numpy as np
 import math
 
 class Vector3:
@@ -62,3 +63,8 @@ class Vector3:
     def Normalize(vector : Vector3) -> Vector3 :
         mag = vector.Magnitude()
         return vector / mag if mag > 0.0 else vector
+
+    @staticmethod
+    def Lerp(start : Vector3, end : Vector3, progress : float):
+        progress = np.clip(progress, 0, 1)
+        return start + progress * (end - start)

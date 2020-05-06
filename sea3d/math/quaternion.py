@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from numbers import Number
 import math
+import numpy as np
 
 from sea3d.math import Vector3
 
@@ -74,6 +75,46 @@ class Quaternion:
         if isinstance(other, Number):
             return self * (1 / other)
 
+    def RightVector(self) -> Vector3:
+        # Equivalent to Matrix4.Quaternion(self) * Vector3(1, 0, 0)
+        x = self.x
+        y = self.y
+        z = self.z
+        w = self.w
+
+        return Vector3(
+            x = 1 - 2 * (y * y + x * x),
+            y = 2 * (x * y + z * w),
+            z = 2 * (x * z - y * w)
+        )
+
+    def UpVector(self) -> Vector3:
+        # Equivalent to Matrix4.Quaternion(self) * Vector3(0, 1, 0)
+        x = self.x
+        y = self.y
+        z = self.z
+        w = self.w
+
+        return Vector3(
+            x = 2 * (x * y - z * w),
+            y = 1 - 2 * (x * x + z * z),
+            z = 2 * (y * z + x * w)
+        )
+
+    def ForwardVector(self) -> Vector3:
+        # Equivalent to Matrix4.Quaternion(self) * Vector3(0, 0, 1)
+        x = self.x
+        y = self.y
+        z = self.z
+        w = self.w
+
+        return Vector3(
+            x = 2 * (x * z + y * w),
+            y = 2 * (y * z - x * w),
+            z = 1 - 2 * (x * x + y * y)
+        )
+
+
     @staticmethod
     def Normalize(q: Quaternion) -> Quaternion:
         mag = math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
@@ -119,3 +160,28 @@ class Quaternion:
     def Euler(angles: Vector3) -> Quaternion:
         """ Convert euler angles to quaternion """
         return Quaternion.Eulerf(angles.x, angles.y, angles.z)
+
+    @staticmethod
+    def Slerp(start : Quaternion, end : Quaternion, progress : float):
+        # Only unit quaternions are valid rotations.
+        # Normalize to avoid undefined behavior.
+        q0 = Quaternion.Normalize(start)
+        q1 = Quaternion.Normalize(end)
+
+        # Compute dot product.
+        dot = q0.x * q1.x + q0.y * q1.y + q0.z * q1.z + q0.w * q1.w
+
+        # If the dot product is negative, slerp won't take
+        # the shorter path. Note that end and -end are equivalent when
+        # the negation is applied to all four components. Fix by 
+        # reversing one quaternion.
+
+        if dot < 0:
+            q1 = -1 * q1
+            dot = -dot
+        
+        theta0 = math.acos(np.clip(dot, -1, 1)) # Angle between input vectors
+        theta = theta0 * progress # Angle between q0 and result
+        q1 = Quaternion.Normalize(q1 - q0 * dot) # Orthogonalize the basis
+
+        return q0 * math.cos(theta) + q1 * math.sin(theta)

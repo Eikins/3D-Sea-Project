@@ -8,7 +8,6 @@ in VertexData {
     vec3 VertexPosition;
     vec3 VertexNormal;
     vec3 VertexTangeant;
-    vec3 VertexBitangeant;
     vec2 TexCoord0;
 } vs_out[];
 
@@ -16,7 +15,6 @@ out VertexData {
     vec3 VertexPosition;
     vec3 VertexNormal;
     vec3 VertexTangeant;
-    vec3 VertexBitangeant;
     vec2 TexCoord0;
 } tcs_out[];
 
@@ -34,7 +32,6 @@ void main() {
     tcs_out[gl_InvocationID].VertexPosition = vs_out[gl_InvocationID].VertexPosition;
     tcs_out[gl_InvocationID].VertexNormal = vs_out[gl_InvocationID].VertexNormal;
     tcs_out[gl_InvocationID].VertexTangeant = vs_out[gl_InvocationID].VertexTangeant;
-    tcs_out[gl_InvocationID].VertexBitangeant = vs_out[gl_InvocationID].VertexBitangeant;
     tcs_out[gl_InvocationID].TexCoord0 = vs_out[gl_InvocationID].TexCoord0;
 
     float d0 = distance(_ViewPos, vs_out[0].VertexPosition);
