@@ -16,6 +16,7 @@ class SceneObject:
     def __init__(self, name:str, parent: Transform = None):
         self.name = name
         self.transform = Transform(parent)
+        self.transform.object = self
         self.components = []
         self.layer = Layers.DEFAULT # Default Layer
 
@@ -46,6 +47,16 @@ class SceneObject:
             if isinstance(comp, Behaviour):
                 comp.Update()
 
+    def ToStr(self, indentLevel:int):
+        s = " " * indentLevel + self.name + " "
+        for comp in self.components:
+            s += "[" + type(comp).__name__ + "]"
+        s += "\n"
+        for child in self.transform._children:
+            s += child.object.ToStr(indentLevel + 4)
+        return s
+
+
 class Scene:
 
     def __init__(self, name:str):
@@ -70,6 +81,14 @@ class Scene:
             for comp in obj.components:
                 comps += [comp]
         return comps
+
+    def __str__(self):
+        sceneStr = self.name + "\n-----------\n"
+        for o in self.objects:
+            obj:SceneObject = o
+            if obj.transform._parent is None:
+                sceneStr += obj.ToStr(0)
+        return sceneStr
 
 class Component:
     """

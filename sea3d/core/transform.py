@@ -34,6 +34,7 @@ class Transform:
         self._scale = Vector3(1, 1, 1)
         self.__changed = True
         self.__LocalTRS = None
+        self.object = None
         self._Model = self.GetTRSMatrix()
 
         if not parent is None:

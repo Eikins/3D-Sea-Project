@@ -142,7 +142,7 @@ def AddWater(scene: Scene, plane: Mesh):
     scene.AddObject(water)
 
 def AddFishes(scene: Scene, fishes):
-    for fish, transforms in fishes.items():
+    for fish, descriptors in fishes.items():
         mesh = Mesh.LoadFromFile("fish/" + fish + "/" + fish + ".fbx")[0]
         albedo = Texture.LoadFromFile("pbr/fish/" + fish + "/albedo.png")
         normal = Texture.LoadFromFile("pbr/fish/" + fish + "/normal.png")
@@ -156,11 +156,32 @@ def AddFishes(scene: Scene, fishes):
         renderer.properties.SetTexture("_ReflectionProbe", Texture.Atlas["cubemaps/skybox"])
 
         i = 0
-        for transform in transforms:
+        for descriptor in descriptors:
             fishObj = SceneObject(fish + " " + str(i))
-            fishObj.transform.SetPosition(transform[0])
-            fishObj.transform.SetRotation(transform[1])
-            fishObj.transform.SetScale(transform[2])
+
+            animationChannels = dict()
+
+            # descriptor[0] is either a Vector3, either Position keyframes
+            if isinstance(descriptor[0], Vector3):
+                fishObj.transform.SetPosition(descriptor[0])
+            else:
+                animationChannels[fishObj.transform.SetPosition] = descriptor[0]
+
+            # descriptor[1] is either a Quaternion, either Rotation keyframes
+            if isinstance(descriptor[1], Quaternion):
+                fishObj.transform.SetRotation(descriptor[1])
+            else:
+                animationChannels[fishObj.transform.SetRotation] = descriptor[1]  
+
+            # descriptor[2] is either a Vector3, either Scale keyframes
+            if isinstance(descriptor[2], Vector3):
+                fishObj.transform.SetScale(descriptor[2])
+            else:
+                animationChannels[fishObj.transform.SetScale] = descriptor[2]  
+
+            if animationChannels:
+                animation = Animation(animationChannels)
+                fishObj.AddComponent(Animator(animation, playOnStart=True, loop=True))
 
             fishObj.AddComponent(renderer.Copy())
 
@@ -219,6 +240,20 @@ class FPSController(Behaviour):
         self.object.transform.SetRotation(newRotation)
         
 
+class Rotator(Behaviour):
+
+    def __init__(self, axis:Vector3, speed:float):
+        super().__init__()
+        self.axis = axis
+        self.speed = speed
+
+    def Start(self):
+        self.renderer:Renderer = self.object.GetComponent(Renderer)
+
+    def Update(self):
+        self.object.transform._rotation *= Quaternion.AxisAngle(self.axis, self.speed * Time.deltaTime)
+        self.object.transform.MarkForUpdate()
+
 def main():
     window = GLWindow(width=1600, height=900)
     window.Init()
@@ -230,7 +265,7 @@ def main():
     # CAMERA
     cameraObject = SceneObject("Camera 1")
     cameraObject.transform.SetPosition(Vector3(0, 0, 1))
-    #cameraObject.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
+    cameraObject.transform.SetRotation(Quaternion.Eulerf(0, 0, 0))
     camera = Camera(aspect=1600/900, far=1000)
     cameraObject.AddComponent(camera)
     cameraObject.AddComponent(FPSController(window, 10, 90))
@@ -257,7 +292,13 @@ def main():
     # FISHES
     fishes = {
         "clownfish": [
-            (Vector3(0, 0, 0), Quaternion(), Vector3(1, 1, 1) * 0.1),
+            # FIRST CLOWNFISH
+            (
+                KeyFrames({0: Vector3(0, 0, 0), 4.5: Vector3(2.5, 0, 0), 5.5: Vector3(2.5, 0, 0), 9: Vector3(0, 0, 0), 10: Vector3(0, 0, 0)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(), 4.5: Quaternion(), 5.5: Quaternion.Eulerf(0, 180, 0), 9: Quaternion.Eulerf(0, 180, 0), 10: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.1
+            ),
+            # SECOND CLOWNFISH
             (Vector3(3.4, 1, 10), Quaternion.Eulerf(0, 180, 0), Vector3(1, 1, 1) * 0.13),     
             ],
         "barracuda": [
@@ -267,9 +308,51 @@ def main():
     }
     AddFishes(scene, fishes)
 
-    print("Scene : " + scene.name)
-    for obj in scene.objects:
-        print(" " + obj.name)
+
+
+    pbrTest1 = SceneObject("PBRTest")
+    pbrTest1.transform.SetPosition(Vector3(0, 7, 0))
+    pbrTest1.transform.SetRotation(Quaternion.Eulerf(5, 40, -5))
+    pbrTest1.transform.SetScale(Vector3(1, 1, 1) * 0.5)
+
+    boxModel = Mesh.LoadFromFile("cube.obj")[0]
+    pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
+#     # floatLerp = lambda a, b, t : a + (b - a) * t
+
+    pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/water_stone/albedo.png"))
+    pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/water_stone/normal.png"))
+    pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/water_stone/roughness.png"))
+    pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/water_stone/metalness.png"))
+    pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
+    pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
+#     moveAnim = Animation({
+#         pbrTest.transform.SetPosition: KeyFrames({0: Vector3(0, 7, -2), 10: Vector3(0, 7, 4)}, Vector3.Lerp),
+#         pbrTest.transform.SetRotation: KeyFrames({0: Quaternion(), 5: Quaternion.Eulerf(0, 180, 0)}, Quaternion.Slerp)
+#     })
+
+    pbrTest1.AddComponent(pbrTestRenderer.Copy())
+    #pbrTest1.AddComponent(Rotator(Vector3(0, 1, 0), 30))
+    #scene.AddObject(pbrTest1)
+
+    print("=== SCENE ===")
+    print(scene)
+
+    print("=== CONTROLS ===")
+    print("Move the camera")
+    print("     W")
+    print("    ASD")
+    print("Look Around")
+    print("    Drag the mouse")
+    print("Go Up")
+    print("    Space Bar")
+    print("Go Down")
+    print("    Left Shift")
+    print("Move Faster")
+    print("    Left Control")
+    print("Toggle Post Processing")
+    print("    H")
+    print("Toggle Wireframe Mode")
+    print("    Y")
 
     window.Run()
 
@@ -277,74 +360,3 @@ if __name__ == '__main__':
     glfw.init() # Initialize window system glfw
     main()
     glfw.terminate() # destroy all graphics contexts
-
-
-
-# # PBR TEST
-
-#     boxModel = Mesh.LoadFromFile("cube.obj")[0]
-
-#     pbrTest = SceneObject("PBRTest")
-#     pbrTest.transform.SetPosition(Vector3(0, 7, -2))
-#     pbrTest.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
-#     pbrTest.transform.SetScale(Vector3(1, 1, 1) * 0.5)
-
-#     pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
-
-#     pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/rock_1/albedo.png"))
-#     pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/rock_1/normal.png"))
-#     pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/rock_1/roughness.png"))
-#     pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/rock_1/metalness.png"))
-#     pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/rock_1/ao.png"))
-#     pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
-
-#     pbrTest.AddComponent(pbrTestRenderer.Copy())
-
-
-#     # floatLerp = lambda a, b, t : a + (b - a) * t
-
-#     moveAnim = Animation({
-#         pbrTest.transform.SetPosition: KeyFrames({0: Vector3(0, 7, -2), 10: Vector3(0, 7, 4)}, Vector3.Lerp),
-#         pbrTest.transform.SetRotation: KeyFrames({0: Quaternion(), 5: Quaternion.Eulerf(0, 180, 0)}, Quaternion.Slerp)
-#     })
-
-#     pbrTest.AddComponent(Animator(moveAnim, playOnStart=True, loop=True))
-
-#     # PBR TEST2
-
-#     pbrTest1 = SceneObject("PBRTest")
-#     pbrTest1.transform.SetPosition(Vector3(1, 7, -2))
-#     pbrTest1.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
-#     pbrTest1.transform.SetScale(Vector3(1, 1, 1) * 0.5)
-
-#     pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
-
-#     pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/water_stone/albedo.png"))
-#     pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/water_stone/normal.png"))
-#     pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/water_stone/roughness.png"))
-#     pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/water_stone/metalness.png"))
-#     pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
-#     pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
-
-#     pbrTest1.AddComponent(pbrTestRenderer.Copy())
-
-#     # PBR TEST3
-#     pbrTest2 = SceneObject("PBRTest")
-#     pbrTest2.transform.SetPosition(Vector3(-1, 7, -2))
-#     pbrTest2.transform.SetRotation(Quaternion.Eulerf(5, 0, -5))
-#     pbrTest2.transform.SetScale(Vector3(1, 1, 1) * 0.5)
-
-#     pbrTestRenderer = Renderer(boxModel, Material("Standard", "std_pbr", "std_pbr"))
-
-#     pbrTestRenderer.properties.SetTexture("_Albedo", Texture.LoadFromFile("pbr/rusted_iron/albedo.png"))
-#     pbrTestRenderer.properties.SetTexture("_Normal", Texture.LoadFromFile("pbr/rusted_iron/normal.png"))
-#     pbrTestRenderer.properties.SetTexture("_Roughness", Texture.LoadFromFile("pbr/rusted_iron/roughness.png"))
-#     pbrTestRenderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/rusted_iron/metalness.png"))
-#     pbrTestRenderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/rusted_iron/ao.png"))
-#     pbrTestRenderer.properties.SetTexture("_ReflectionProbe", skyboxTex)
-
-#     pbrTest2.AddComponent(pbrTestRenderer)
-
-#     scene.AddObject(pbrTest)
-#     scene.AddObject(pbrTest1)
-#     scene.AddObject(pbrTest2)
