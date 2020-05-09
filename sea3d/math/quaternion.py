@@ -2,7 +2,6 @@
 Quaternion class
 @author: Eikins
 """
-
 # Python 3.7+
 # PEP 563: postponed evaluation of annotations
 # Used for typing

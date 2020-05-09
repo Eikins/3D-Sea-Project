@@ -27,6 +27,8 @@ class GLWindow:
         self.window = None
         self.scene:Scene = None
         self.camera:Camera = None
+        self.key_handlers = []
+        self.mouse_handlers = []
 
     def Init(self):
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -39,71 +41,46 @@ class GLWindow:
         # make win's OpenGL context current; no OpenGL calls can happen before
         glfw.make_context_current(self.window)
 
+        # Cursor Lock mode
+        glfw.set_input_mode(self.window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+
         # register event handlers
         glfw.set_key_callback(self.window, self.OnKey)
+        glfw.set_cursor_pos_callback(self.window, self.OnMouse)
 
         # useful message to check OpenGL renderer characteristics
         print('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
-        self.mode = cycle([(GL.GL_LINE, False), (GL.GL_FILL, True)])
+        # Y Key allows to swap between line and fill mode, the second arg is wether the post
+        # process is enabled
+        self.mode = cycle([GL.GL_LINE, GL.GL_FILL])
+
+    def OnMouse(self, _win, x, y):
+        # Normalized pos
+        nx =  2 * (x / self.width) - 1
+        ny = 2 * (y / self.height) - 1
+        for handler in self.mouse_handlers:
+            handler(nx, ny)
+                
 
     def OnKey(self, _win, key, _scancode, action, _mods):
+
+        for handler in self.key_handlers:
+            handler(key, _scancode, action, _mods)
 
         if action == glfw.PRESS:
             if key == glfw.KEY_Y:
                 mode = next(self.mode)
-                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, mode[0])
-                self.pipeline.postProcess = mode[1]
+                GL.glPolygonMode(GL.GL_FRONT_AND_BACK, mode)
+
+            if key == glfw.KEY_H:
+                self.pipeline.postProcess = not self.pipeline.postProcess
 
         if action == glfw.PRESS or action == glfw.REPEAT:
-            if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
+            if key == glfw.KEY_ESCAPE:
                 glfw.set_window_should_close(self.window, True)
-
-            movement = None
-            rotate = None
-
-            moveSpeed = 10
-            rotateSpeed = 360
-
-            if key == glfw.KEY_LEFT:
-                movement = self.camera.object.transform._rotation.RightVector() * -1
-
-            if key == glfw.KEY_RIGHT:
-                movement = self.camera.object.transform._rotation.RightVector()
-
-            if key == glfw.KEY_UP:
-                movement = self.camera.object.transform._rotation.ForwardVector()
-
-            if key == glfw.KEY_DOWN:
-                movement = self.camera.object.transform._rotation.ForwardVector() * -1
-
-            if key == glfw.KEY_SPACE:
-                movement = self.camera.object.transform._rotation.UpVector()
-
-            if key == glfw.KEY_LEFT_SHIFT:
-                movement = self.camera.object.transform._rotation.UpVector() * -1
-
-            if key == glfw.KEY_R:
-                rotate = Quaternion.AxisAngle(Vector3(0, 1, 0), rotateSpeed * Time.deltaTime)
-
-            if key == glfw.KEY_T:
-                rotate = Quaternion.AxisAngle(Vector3(0, 1, 0), -rotateSpeed * Time.deltaTime)
-
-            if key == glfw.KEY_U:
-                rotate = Quaternion.AxisAngle(Vector3(1, 0, 0), rotateSpeed * Time.deltaTime)
-
-            if key == glfw.KEY_J:
-                rotate = Quaternion.AxisAngle(Vector3(1, 0, 0), -rotateSpeed * Time.deltaTime)
-
-            if movement:
-                self.camera.object.transform._position += movement * moveSpeed * Time.deltaTime
-                self.camera.object.transform.MarkForUpdate()
-
-            if rotate:
-                self.camera.object.transform._rotation *= rotate
-                self.camera.object.transform.MarkForUpdate()
 
     def AttachScene(self, scene:Scene):
         glfw.set_window_title(self.window, scene.name)

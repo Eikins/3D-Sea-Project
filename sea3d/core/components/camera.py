@@ -45,7 +45,7 @@ class Camera(Component):
     def SetRenderingLayers(self, layers:int):
         self._renderingLayer = layers
 
-    def AttackSkyBox(self, skybox:Texture):
+    def AttachSkyBox(self, skybox:Texture):
         self._skybox = skybox
 
     def GetProjectionMatrix(self):

@@ -55,6 +55,14 @@ class GLRenderPipeline:
                 vertexArray.Init()
                 self.renderers.setdefault(renderer.object.layer, []).append((vertexArray, renderer))
 
+        # TODO : Change to dynamic sorted list
+        # Sort renderers
+        for renderers in self.renderers.values():
+            renderers.sort(key = lambda r : r[1].material.orderInQueue)
+            # print(layer)
+            # for r in renderers:
+            #    print(r[1].material.name + ":",r[1].material.orderInQueue)
+
         self.skyboxMaterial = Material("Skybox", "skybox", "skybox")
         self.materialBatch.AddMaterial(self.skyboxMaterial)
         self.skybox.Init()
@@ -100,13 +108,15 @@ class GLRenderPipeline:
         # In case of transparent & water layers, we need to activate color blending
         if layer & (Layers.TRANSPARENT | Layers.WATER):
             GL.glEnable(GL.GL_BLEND)
-            # We want to render water both sides, so disable face culling
-            if layer & Layers.WATER:
-                GL.glDisable(GL.GL_CULL_FACE)
+
             GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         # Draw Scene
         for vbo, renderer in self.renderers[layer]:
+
+            if renderer.material.renderBothFaces:
+                # We want to render water both sides, so disable face culling
+                GL.glDisable(GL.GL_CULL_FACE)
             
             glid = self.materialBatch.GetProgramID(renderer.material)
 
@@ -152,10 +162,12 @@ class GLRenderPipeline:
 
             vbo.Draw()
 
+            if renderer.material.renderBothFaces:
+                # Reset OpenGL State
+                GL.glDisable(GL.GL_CULL_FACE)
+
         # Reset OpenGL states
         if layer & (Layers.TRANSPARENT | Layers.WATER):
-            if layer & Layers.WATER:
-                GL.glEnable(GL.GL_CULL_FACE)
             GL.glDisable(GL.GL_BLEND)
 
     def DrawSkybox(self):

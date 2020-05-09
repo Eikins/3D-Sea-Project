@@ -57,6 +57,16 @@ class Transform:
         self._scale = scale
         self.__changed = True
 
+    def Translate(self, translation: Vector3):
+        """ Translate the transform """
+        self._position += translation
+        self.__changed = True
+
+    def Rotate(self, rotation: Quaternion):
+        """ Translate the transform """
+        self._rotation *= rotation
+        self.__changed = True
+
     def SetParent(self, parent: Transform):
         if not self._parent is None:
             self._parent._children.remove(self)
@@ -75,6 +85,18 @@ class Transform:
         if(self._parent is None):
             return False
         return self._parent._ParentChanged() or self._parent.__changed
+
+    def RightVector(self):
+        vec3 = self._Model[:3, 0]
+        return Vector3.Normalize(Vector3(vec3[0], vec3[1], vec3[2]))
+
+    def UpVector(self):
+        vec3 = self._Model[:3, 1]
+        return Vector3.Normalize(Vector3(vec3[0], vec3[1], vec3[2]))
+
+    def ForwardVector(self):
+        vec3 = self._Model[:3, 2]
+        return Vector3.Normalize(Vector3(vec3[0], vec3[1], vec3[2]))
 
     def GetTRSMatrix(self):
         """ Returns the model matrix for this object """

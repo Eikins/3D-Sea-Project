@@ -18,6 +18,7 @@ class Material:
         self.useTessellation = False
         self.tessellationControl = ""
         self.tessellationEvaluation = ""
+        self.renderBothFaces = False
         self.orderInQueue = orderInQueue
 
     def AddTessellation(self, control:str, evaluation:str):

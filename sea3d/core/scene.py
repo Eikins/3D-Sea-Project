@@ -9,7 +9,7 @@ Component and Behaviour class used for objects logic
 # Used for typing
 from __future__ import annotations
 
-from sea3d.core import Transform
+from sea3d.core import Transform, Layers
 
 class SceneObject:
 
@@ -17,7 +17,7 @@ class SceneObject:
         self.name = name
         self.transform = Transform(parent)
         self.components = []
-        self.layer = 1 # Default Layer
+        self.layer = Layers.DEFAULT # Default Layer
 
     def AddComponent(self, component: Component):
         if component.object is None:
