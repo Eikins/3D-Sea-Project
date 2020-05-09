@@ -289,6 +289,18 @@ def main():
     AddTerrain(scene, plane)
     AddWater(scene, plane)
 
+    # FISH DICITONNARY
+    # The key are the fish names, it will automatically load the associated model and textures
+    # under assets/models/fish/fish-name/fish-name.fbx for the Mesh
+    #       assets/textures/pbr/fish/fish-name/albedo.png for the Albedo
+    #       assets/textures/pbr/fish/fish-name/normal.png for the Normal
+    # it uses default roughness, metalness and ao
+    # The key is a list of Fish Descriptors
+    # A fish descriptor is a 3-tuple, of the form (PositionInfo, RotationInfo, ScaleInfo)
+    # The PositionInfo is either a Vector3 for a static position, or a KeyFrames of Vector3
+    # The RotationInfo is either a Quaternion for a static rotation, or a KeyFrames of Quaternions
+    # The ScaleInfo is either a Vector3 for a static Scale, or a KeyFrames of Vector3
+
     # FISHES
     fishes = {
         "clownfish": [
