@@ -376,19 +376,35 @@ def main():
                 Vector3(1, 1, 1) * 0.1
             ),
             # SECOND CLOWNFISH
-            (
-                KeyFrames({0: Vector3(3.4, 1, 10), 2.5: Vector3(9.4, 1, 10), 3.5: Vector3(9.4, 1, 10), 6: Vector3(9.4, 7, 10), 8.5: Vector3(3.4, 7, 10), 10: Vector3(3.4,1,10), 12: Vector3(3.4,1,10)}, Vector3.Lerp),
-                KeyFrames({0: Quaternion(), 2.5: Quaternion(), 3.5: Quaternion.Eulerf(0,90,0), 6: Quaternion.Eulerf(0,90,0), 8.5: Quaternion.Eulerf(0, 90, 0), 10: Quaternion.Eulerf(0, 90, 0), 12: Quaternion()}, Quaternion.Slerp),
-                # KeyFrames({0: Vector3(3.4, 1, 10), 10: Vector3(-7.4, 1, 10)}, Vector3.Lerp),
-                # Quaternion.Eulerf(0, 180, 0),
-                Vector3(1, 1, 1) * 0.13) 
+            (    KeyFrames({0: Vector3(3.4, 1, 10), 3: Vector3(9.4, 1, 10), 3.5: Vector3(9.4, 1, 10), 6.5: Vector3(9.4, 1, 16), 7: Vector3(9.4, 1, 16), 10: Vector3(3.4, 1, 16), 10.5: Vector3(3.4, 1, 16), 13.5: Vector3(3.4,1,10), 14: Vector3(3.4,1,10)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(), 3: Quaternion(), 3.5: Quaternion.Eulerf(0,270,0), 6.5: Quaternion.Eulerf(0,270,0), 7: Quaternion.Eulerf(0,180,0), 10: Quaternion.Eulerf(0,180,0), 10.5: Quaternion.Eulerf(0, 90, 0), 13.5: Quaternion.Eulerf(0, 90, 0), 14: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.13    
+            ),
             ],
         "barracuda": [
-            (Vector3(0, 2, 0), Quaternion(), Vector3(1, 1, 1) * 0.1),
-            (Vector3(1, -3, -4), Quaternion.Eulerf(0, 180, 0), Vector3(1, 1, 1) * 0.11),     
+            (
+                KeyFrames({0: Vector3(-13,1,0), 10: Vector3(-13,15,0), 10.1: Vector3(-13,15,0), 20.1: Vector3(-13,1,0), 20.2: Vector3(-13,1,0)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(),10: Quaternion.Eulerf(0,180,0), 10.1: Quaternion.Eulerf(0,180,0), 20.1: Quaternion.Eulerf(0,360,0), 20.2: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.11)    
+            ],
+        "shark": [
+            (
+                KeyFrames({0: Vector3(-10,0,-20), 5: Vector3(-8,0,-15), 15: Vector3(-12,0,-5), 25: Vector3(-8,0,5), 35: Vector3(-12,0,15), 40: Vector3(-10,0,20), 
+                           45:Vector3(-10,0,20), 50:Vector3(-12,0,15), 60: Vector3(-8,0,5), 70: Vector3(-12,0,-5), 80: Vector3(-8,0,-15), 85: Vector3(-10,0,-20)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(), 5: Quaternion.Eulerf(0,45,0), 15: Quaternion.Eulerf(0,180,0), 25: Quaternion.Eulerf(0,360,0), 35: Quaternion(), 40: Quaternion(),
+                           45: Quaternion(), 50: Quaternion(), 60: Quaternion(), 70: Quaternion(), 80: Quaternion(), 85: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.11)    
             ]
     }
     AddFishes(scene, fishes)
+    parentFish = scene.Find("clownfish 1")
+    childFish = SceneObject("clownfish 1 child", parentFish.transform)
+    childFish.transform.SetPosition(Vector3(0, 0, -3))
+    childFish.transform.SetScale(Vector3(1, 1, 1) * 0.3)
+    childFish.AddComponent(parentFish.GetComponent(Renderer).Copy())
+    scene.AddObject(childFish)
+
+
 
 #     pbrTest1 = SceneObject("PBRTest")
 #     pbrTest1.transform.SetPosition(Vector3(0, 7, 0))
