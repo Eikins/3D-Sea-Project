@@ -384,7 +384,7 @@ def main():
             ],
         "barracuda": [
             (
-                KeyFrames({0: Vector3(-13,-5,0), 10: Vector3(-13,8,0), 10.1: Vector3(-13,8,0), 20.1: Vector3(-13,-5,0), 20.2: Vector3(-13,-5,0)}, Vector3.Lerp),
+                KeyFrames({0: Vector3(-13,-5,0), 10: Vector3(-13,3,0), 10.1: Vector3(-13,3,0), 20.1: Vector3(-13,-5,0), 20.2: Vector3(-13,-5,0)}, Vector3.Lerp),
                 KeyFrames({0: Quaternion(),10: Quaternion.Eulerf(0,180,0), 10.1: Quaternion.Eulerf(0,180,0), 20.1: Quaternion.Eulerf(0,360,0), 20.2: Quaternion()}, Quaternion.Slerp),
                 Vector3(1, 1, 1) * 0.11)    
             ],
