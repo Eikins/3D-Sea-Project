@@ -48,7 +48,7 @@ def AddTerrain(scene: Scene, plane: Mesh):
     renderer.properties.SetTexture("_Metalness", Texture.LoadFromFile("pbr/water_stone/metalness.png"))
     renderer.properties.SetTexture("_AmbientOcclusion", Texture.LoadFromFile("pbr/water_stone/ao.png"))
     terrain.AddComponent(renderer)
-    
+
     scene.AddObject(terrain)
     AddVegetation(scene, terrain)
 
@@ -240,6 +240,40 @@ class FPSController(Behaviour):
         self.object.transform.SetRotation(newRotation)
         
 
+### DEMO ONLY
+### TERRAIN ROTATOR ###
+class TerrainController(Behaviour):
+
+    # Attach GLWindows, a proper  platform-independent Input System needs to be implemented
+    def __init__(self, window:GLWindow):
+        super().__init__()
+        window.key_handlers += [self.OnKey]
+        self.angle = 0
+        self.offset = 0
+
+    def Start(self):
+        self.initialPosition = self.object.transform._position
+
+    def Update(self):
+        self.object.transform.Rotate(Quaternion.Eulerf(0, self.angle * Time.deltaTime * 60, 0))
+        self.object.transform.Translate(Vector3(0, self.offset * 5 * Time.deltaTime, 0))
+
+    def OnKey(self, key, _scancode, action, _mods):
+        if action == glfw.PRESS or action == glfw.RELEASE:
+            state = 1 if action == glfw.PRESS else -1
+            if key == glfw.KEY_LEFT:
+                self.angle -= 1 * state
+            if key == glfw.KEY_RIGHT:
+                self.angle += 1 * state
+            if key == glfw.KEY_UP:
+                self.offset += 1 * state
+            if key == glfw.KEY_DOWN:
+                self.offset -= 1 * state
+
+        if action == glfw.PRESS and key == glfw.KEY_BACKSPACE:
+                self.object.transform.SetRotation(Quaternion())
+                self.object.transform.SetPosition(self.initialPosition)
+
 class Rotator(Behaviour):
 
     def __init__(self, axis:Vector3, speed:float):
@@ -289,6 +323,11 @@ def main():
     AddTerrain(scene, plane)
     AddWater(scene, plane)
 
+    # DEMO ONLY - TERRAIN CONTROLLER
+    terrain = scene.Find("Terrain")
+    if terrain:
+        terrain.AddComponent(TerrainController(window))
+
     # FISH DICITONNARY
     # The key are the fish names, it will automatically load the associated model and textures
     # under assets/models/fish/fish-name/fish-name.fbx for the Mesh
@@ -311,7 +350,10 @@ def main():
                 Vector3(1, 1, 1) * 0.1
             ),
             # SECOND CLOWNFISH
-            (Vector3(3.4, 1, 10), Quaternion.Eulerf(0, 180, 0), Vector3(1, 1, 1) * 0.13),     
+            (
+                KeyFrames({0: Vector3(3.4, 1, 10), 10: Vector3(-7.4, 1, 10)}, Vector3.Lerp),
+                Quaternion.Eulerf(0, 180, 0),
+                Vector3(1, 1, 1) * 0.13),     
             ],
         "barracuda": [
             (Vector3(0, 2, 0), Quaternion(), Vector3(1, 1, 1) * 0.1),
@@ -365,6 +407,12 @@ def main():
     print("    H")
     print("Toggle Wireframe Mode")
     print("    Y")
+
+    print("-- DEMO ONLY --")
+    print("Rotate/Move Terrain")
+    print("    Arrows")
+    print("Reset Terrain Transform")
+    print("    Backspace")
 
     window.Run()
 

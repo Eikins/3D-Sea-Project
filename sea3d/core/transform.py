@@ -33,6 +33,7 @@ class Transform:
         self._rotation = Quaternion()
         self._scale = Vector3(1, 1, 1)
         self.__changed = True
+        self.__notifyChildren = True
         self.__LocalTRS = None
         self.object = None
         self._Model = self.GetTRSMatrix()
@@ -114,7 +115,7 @@ class Transform:
                 
             self.__changed = False
         
-        elif self._ParentChanged():
+        elif self._parent:
             self._Model = self._parent.GetTRSMatrix() @ self.__LocalTRS
 
         return self._Model

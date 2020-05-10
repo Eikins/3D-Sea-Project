@@ -82,6 +82,11 @@ class Scene:
                 comps += [comp]
         return comps
 
+    def Find(self, name:str):
+        for o in self.objects:
+            if o.name == name:
+                return o
+
     def __str__(self):
         sceneStr = self.name + "\n-----------\n"
         for o in self.objects:
