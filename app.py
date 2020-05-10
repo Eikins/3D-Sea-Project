@@ -15,13 +15,14 @@ from sea3d.core.components import Camera, Renderer, Animator
 
 from sea3d.opengl import GLWindow
 
-# Sample a texture at pixel coordinate and return the red value (height)
+# Sample a texture at pixel coordinate and return the red value normalized (height)
 def GetHeightAt(heightMap:Texture, x:float, y:float):
     ux = int(math.floor(x))
     uy = int(math.floor(y))
     if heightMap.filter == TextureFilter.POINT:
         return heightMap.data[ux, uy][0] / 255
     else:
+        # Bilinear interpolation...
         tx = x - ux
         ty = y - uy
         h00 = heightMap.data[ux, uy][0]
@@ -383,26 +384,107 @@ def main():
             ],
         "barracuda": [
             (
-                KeyFrames({0: Vector3(-13,1,0), 10: Vector3(-13,15,0), 10.1: Vector3(-13,15,0), 20.1: Vector3(-13,1,0), 20.2: Vector3(-13,1,0)}, Vector3.Lerp),
+                KeyFrames({0: Vector3(-13,-5,0), 10: Vector3(-13,8,0), 10.1: Vector3(-13,8,0), 20.1: Vector3(-13,-5,0), 20.2: Vector3(-13,-5,0)}, Vector3.Lerp),
                 KeyFrames({0: Quaternion(),10: Quaternion.Eulerf(0,180,0), 10.1: Quaternion.Eulerf(0,180,0), 20.1: Quaternion.Eulerf(0,360,0), 20.2: Quaternion()}, Quaternion.Slerp),
                 Vector3(1, 1, 1) * 0.11)    
             ],
         "shark": [
             (
-                KeyFrames({0: Vector3(-10,0,-20), 5: Vector3(-8,0,-15), 15: Vector3(-12,0,-5), 25: Vector3(-8,0,5), 35: Vector3(-12,0,15), 40: Vector3(-10,0,20), 
-                           45:Vector3(-10,0,20), 50:Vector3(-12,0,15), 60: Vector3(-8,0,5), 70: Vector3(-12,0,-5), 80: Vector3(-8,0,-15), 85: Vector3(-10,0,-20)}, Vector3.Lerp),
-                KeyFrames({0: Quaternion(), 5: Quaternion.Eulerf(0,45,0), 15: Quaternion.Eulerf(0,180,0), 25: Quaternion.Eulerf(0,360,0), 35: Quaternion(), 40: Quaternion(),
-                           45: Quaternion(), 50: Quaternion(), 60: Quaternion(), 70: Quaternion(), 80: Quaternion(), 85: Quaternion()}, Quaternion.Slerp),
+                KeyFrames({0: Vector3(-10,0,-20), 2.5: Vector3(-8,0,-15), 7.5: Vector3(-12,0,-5), 12.5: Vector3(-8,0,5), 17.5: Vector3(-12,0,15), 20: Vector3(-10,0,20), 
+                           22.5:Vector3(-10,0,20), 25:Vector3(-12,0,15), 30: Vector3(-8,0,5), 35: Vector3(-12,0,-5), 40: Vector3(-8,0,-15), 42.5: Vector3(-10,0,-20)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion.Eulerf(0,270,0), 2.5: Quaternion.Eulerf(0,240,0), 7.5: Quaternion.Eulerf(0,300,0), 12.5: Quaternion.Eulerf(0,240,0), 17.5: Quaternion.Eulerf(0,300,0), 20: Quaternion.Eulerf(0,300,0),
+                           22.5: Quaternion.Eulerf(0,90,0), 25: Quaternion.Eulerf(0,60,0), 30: Quaternion.Eulerf(0,120,0), 35: Quaternion.Eulerf(0,60,0), 40: Quaternion.Eulerf(0,120,0), 42.5: Quaternion.Eulerf(0,270,0)}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.8)    
+            ],
+        "lionfish":  [
+            (
+                KeyFrames({0: Vector3(5,2,-5), 5: Vector3(6,0,-5), 10: Vector3(7,2,-5), 15: Vector3(8,0,-5), 17: Vector3(8,0,-5), 22: Vector3(7,2,-5), 27: Vector3(6,0,-5), 32: Vector3(5,2,-5), 34: Vector3(5,2,-5)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(),5: Quaternion(), 10: Quaternion(), 15: Quaternion(), 17: Quaternion.Eulerf(0,180,0), 20: Quaternion.Eulerf(0,180,0), 22: Quaternion.Eulerf(0,180,0), 27: Quaternion.Eulerf(0,180,0), 32: Quaternion.Eulerf(0,180,0), 34: Quaternion()}, Quaternion.Slerp),
                 Vector3(1, 1, 1) * 0.11)    
-            ]
+            ],            
+        "seahorse": [
+            (
+                KeyFrames({0: Vector3(5,5,-8), 10: Vector3(5,-6,-8), 10.1: Vector3(5,-6,-8), 20.1: Vector3(5,5,-8), 20.2: Vector3(5,5,-8)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(),10: Quaternion(), 10.1: Quaternion(), 20.1: Quaternion(), 20.2: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.11)    
+            ],
+        "reeffish":  [
+            (
+                KeyFrames({0: Vector3(-1.5,-4,-3), 5: Vector3(-1.5,0,-2), 10: Vector3(-1.5,-4,-1), 15: Vector3(-1.5,0,0), 20: Vector3(-1.5,-4,1), 22: Vector3(-1.5,-4,1), 27: Vector3(-1.5,0,0), 32: Vector3(-1.5,-4,-1), 37: Vector3(-1.5,0,-2), 42: Vector3(-1.5,-4,-3), 44: Vector3(-1.5,-4,-3)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion.Eulerf(0,270,0),5: Quaternion.Eulerf(0,270,0), 10: Quaternion.Eulerf(0,270,0), 15: Quaternion.Eulerf(0,270,0), 20: Quaternion.Eulerf(0,270,0), 22: Quaternion.Eulerf(0,90,0), 27: Quaternion.Eulerf(0,90,0), 32: Quaternion.Eulerf(0,90,0), 37: Quaternion.Eulerf(0,90,0), 42: Quaternion.Eulerf(0,90,0), 44: Quaternion.Eulerf(0,270,0)}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.15)    
+            ],  
+        "dorie": [
+            (
+                KeyFrames({0: Vector3(1, 0, -1), 4.5: Vector3(3.5, 0, -1), 5.5: Vector3(3.5, 0, -1), 9: Vector3(1, 0, -1), 10: Vector3(1, 0, -1)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion(), 4.5: Quaternion(), 5.5: Quaternion.Eulerf(0, 180, 0), 9: Quaternion.Eulerf(0, 180, 0), 10: Quaternion()}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.1
+            )
+            ],
+        "yellowfish": [
+            (
+                KeyFrames({0: Vector3(8, 1, 5), 5: Vector3(8, 1, 5), 5.1: Vector3(8, 1, 5), 10: Vector3(8, 1, 5), 10.1: Vector3(8, 1, 5)}, Vector3.Lerp),
+                KeyFrames({0: Quaternion.Eulerf(0, 90, 0), 5.1: Quaternion.Eulerf(0, 270, 0), 7: Quaternion.Eulerf(0, 270, 0), 10: Quaternion.Eulerf(0, 90, 0), 10.1: Quaternion.Eulerf(0, 90, 0)}, Quaternion.Slerp),
+                Vector3(1, 1, 1) * 0.1
+            )                  
+        ]
     }
+                
     AddFishes(scene, fishes)
-    parentFish = scene.Find("clownfish 1")
-    childFish = SceneObject("clownfish 1 child", parentFish.transform)
+    
+    parentFish1 = scene.Find("clownfish 1")
+    childFish = SceneObject("clownfish 1 child", parentFish1.transform)
     childFish.transform.SetPosition(Vector3(0, 0, -3))
     childFish.transform.SetScale(Vector3(1, 1, 1) * 0.3)
-    childFish.AddComponent(parentFish.GetComponent(Renderer).Copy())
+    childFish.AddComponent(parentFish1.GetComponent(Renderer).Copy())
     scene.AddObject(childFish)
+    
+    parentFish2 = scene.Find("clownfish 0")
+    friendFish = SceneObject("clownfish 0 child", parentFish2.transform)
+    friendFish.transform.SetPosition(Vector3(1, 0, 2))
+    friendFish.transform.SetScale(Vector3(1, 1, 1) * 0.1)
+    friendFish.AddComponent(parentFish2.GetComponent(Renderer).Copy())
+    scene.AddObject(friendFish)
+    
+    parentFish3 = scene.Find("yellowfish 0")
+    
+    swarmfish1 = SceneObject("swarm fish 1", parentFish3.transform)
+    swarmfish1.transform.SetPosition(Vector3(3, 0, 3))
+    swarmfish1.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish1.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish1)
+
+    swarmfish2 = SceneObject("swarm fish 2", parentFish3.transform)
+    swarmfish2.transform.SetPosition(Vector3(1, 5, 0))
+    swarmfish2.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish2.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish2)
+
+    swarmfish3 = SceneObject("swarm fish 3", parentFish3.transform)
+    swarmfish3.transform.SetPosition(Vector3(3, -3, 8))
+    swarmfish3.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish3.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish3)
+
+    swarmfish4 = SceneObject("swarm fish 4", parentFish3.transform)
+    swarmfish4.transform.SetPosition(Vector3(7, 3, 3))
+    swarmfish4.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish4.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish4)
+
+    swarmfish5 = SceneObject("swarm fish 5", parentFish3.transform)
+    swarmfish5.transform.SetPosition(Vector3(0, -2.6, -2.8))
+    swarmfish5.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish5.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish5)
+
+    swarmfish6 = SceneObject("swarm fish 6", parentFish3.transform)
+    swarmfish6.transform.SetPosition(Vector3(0, -5, 5.2))
+    swarmfish6.transform.SetScale(Vector3(1, 1, 1))
+    swarmfish6.AddComponent(parentFish3.GetComponent(Renderer).Copy())
+    scene.AddObject(swarmfish6)
+
+
 
 
 
