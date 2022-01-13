@@ -1,5 +1,5 @@
 ##### Project Requirements #####
-Pillow==7.0.0
+Pillow==9.0.0
 numpy==1.18.1
 PyOpenGL==3.1.5
 assimpcy==1.1.1
